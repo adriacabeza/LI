@@ -183,3 +183,7 @@ int main(){
   }
 }  
 //un cop ja no tinc cap conflicte doncs he d'agafar del model stack quines son indefinides fent servir la heurística
+
+//propagació feta lo que has fet és fer una estructura de dades on tens els literals i les clausules on apareixen. Llavors accedeixes al seu negatiu per a que es generin conflictes i propagar.
+
+//Et falta fer la heurística d'ordenar el literal que es posarà a true i llavors fer la dinàmica (lo de anar fer swaps per el ordre), rebaixar la puntuació cada x instruccions
