@@ -14,35 +14,10 @@ vector<vector<int> > clauses;
 vector<int> model;
 vector<int> modelStack;
 uint indexOfNextLitToPropagate;
+int conflicts; 
 uint decisionLevel;
 vector<vector<int> > taulaAux;
-vector<pair<int,int>> heuristic;
-
-int calculaPos(int lit){
-    int resultat = 0;
-    if(lit < 0){
-        resultat = 2*((-lit)-1)+1;
-    }
-    else
-        resultat = 2*(lit-1);
     
-    return resultat;
-}
-
-//inversa de calculaPos
-int getPos(int i){
-    int lit = ((i/2)+1);;
-    if(i%2){
-        return lit;        
-    }
-    else{
-        return -lit;
-    }
-}
-
-
-
-
 void readClauses( ){
     
   // Skip comments
@@ -54,14 +29,16 @@ void readClauses( ){
   // Read "cnf numVars numClauses"
   string aux;
   cin >> aux >> numVars >> numClauses;
+  taulaAux.resize(numVars*2+1);
   clauses.resize(numClauses);  
   // Read clauses
   for (uint i = 0; i < numClauses; ++i) {
-
     int lit;
     while (cin >> lit and lit != 0) {
         clauses[i].push_back(lit);
-        taulaAux[calculaPos(lit)].push_back(lit);
+        //em creo una taula amb posició totes les variables * 2(positius i negatius) i fico a totes les clausules a les que apareix
+        if(lit < 0) taulaAux[-lit+numVars].push_back(i);
+        else taulaAux[lit].push_back(i);
     }
   }
   
@@ -88,22 +65,31 @@ void setLiteralToTrue(int lit){
 
 bool propagateGivesConflict ( ) {
   while ( indexOfNextLitToPropagate < modelStack.size() ) {
-    int pos = calculaPos(indexOfNextLitToPropagate);
-    for (uint i = 0; i < taulaAux[pos].size(); ++i) {
+         
+    int lit = modelStack[indexOfNextLitToPropagate];
+    if (lit > 0) lit += numVars;
+    else lit = -lit;
+    
+    ++indexOfNextLitToPropagate; 
+    for (uint i = 0; i < taulaAux[lit].size(); ++i) {
+        
       bool someLitTrue = false;
       int numUndefs = 0;
       int lastLitUndef = 0;
+      for (uint k = 0; not someLitTrue and k < clauses[taulaAux[lit][i]].size(); ++k){
       
-      for (uint k = 0; not someLitTrue and k < clauses[taulaAux[pos][i]].size(); ++k){
-        int val = currentValueInModel(clauses[taulaAux[pos][i]][k]);
+        int val = currentValueInModel(clauses[taulaAux[lit][i]][k]);
         if (val == TRUE) someLitTrue = true;
-        else if (val == UNDEF){ ++numUndefs; lastLitUndef = clauses[taulaAux[pos][i]][k]; }
+        else if (val == UNDEF){ ++numUndefs; lastLitUndef = clauses[taulaAux[lit][i]][k]; }
         }
-        if (not someLitTrue and numUndefs == 0) return true; // conflict! all lits false
+        if (not someLitTrue and numUndefs == 0) {
+             ++conflicts;
+            return true; // conflict! all lits false
+        }
         else if (not someLitTrue and numUndefs == 1) setLiteralToTrue(lastLitUndef);	
     }    
   
-      ++indexOfNextLitToPropagate; 
+     
     }
   return false;
 }
@@ -130,6 +116,7 @@ void backtrack(){
 }
 
 // Heuristic for finding the next decision literal:
+/*
 int getNextDecisionLiteral(){
     heuristic.resize(numVars);
     for(int i = 0; i < taulaAux.size(); ++i){
@@ -140,6 +127,16 @@ int getNextDecisionLiteral(){
     if (model[heuristic[i]] == UNDEF) return i;  // returns first UNDEF var, positively
   return 0; // reurns 0 when all literals are defined
 }
+
+*/
+// Heuristic for finding the next decision literal:
+int getNextDecisionLiteral(){
+  for (uint i = 1; i <= numVars; ++i) // stupid heuristic:
+    if (model[i] == UNDEF) return i;  // returns first UNDEF var, positively
+  return 0; // reurns 0 when all literals are defined
+}
+
+
 
 void checkmodel(){
   for (uint i = 0; i < numClauses; ++i){
