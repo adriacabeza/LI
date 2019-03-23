@@ -1,0 +1,3 @@
+Cuando hace esto busca la primera clausula cuya cabeza es unificable con la cabeza de la query. La unificación unifica la cabeza con el objetivo, entonces las variables se instancian (adquieren el valor). Entonces en nuevo objetivo es la cola, que se trata de izquierda a derecha. 
+
+Entonces al tratarse va a buscar la primera clausula cuya cabezera sea unificable con el objetivo e instancia nuevas variables. Además se empila una clausula si tiene que ver con la información (constantes que hemos añadido en minsuculas) que estamos tratando. 

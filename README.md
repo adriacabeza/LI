@@ -10,3 +10,5 @@ make
 ./scriptPicoSAT.sh
 ```
 
+## [Lab 2: Prolog](https://github.com/adriacabeza/LI/tree/master/Lab2)
+

@@ -1,0 +1,25 @@
+## Unificació de llistes.
+Si vull fer una unificació de llistes he de fer servir o *=* o* \=* per a la seva negada. Per exemple si faig *f(X,a)=f(b,Y)* llavors X agafarà el valor de b i la variable Y agafarà el valor de a.
+
+Llavors en el cas que vulgui separar els primers elements de la llista amb els altres es fa *|* i *[]* fa la llista buida. 
+Per exemple: 
+```
+?- [X|L]=[Y,Z,a,g(b),c]. 
+X = Y,
+L = [Z, a, g(b), c].
+```
+fa que X agafi el primer valor i L agafi els de la resta de la llista
+
+
+El subrallat _ denota una variable que té un nom que no ens importa i els % són comentaris. Per carregar un arxiu .pl en el interprèt escrius [NOMARXIU]. 
+
+Existeixen operadors predefinits com +,-,*,/,mod, // (divisió entera) i comparadors com <,>,=<,>=. Per a fer-los servir he de fer servir el is.
+
+```
+X is 1/3.
+X is (7+3) mod 2.
+3 is 2+3.
+```
+
+Per a escriure tenim el write, això el que fa és que sempre és cert. Per a escriure totes les respotes a una pregunta puc escriure write de lo que sigui, afegir nl (que és un salt de línia que és OPCIONAL) i fail per forçar el backtracking. 
+
