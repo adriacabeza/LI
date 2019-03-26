@@ -1,100 +1,141 @@
 :-dynamic(varNumber / 3).
 symbolicOutput(0).  % set to 1 to see symbolic output only; 0 otherwise.
 
-%% We want to schedule a series of events within the next few days.
-%% Due to the nature of the events, each event should have a moderator
-%% assigned to it. There is a limit on the number of events per day
-%% and also on the amount of days where events with the same moderator
-%% can take place. Finally, we have a list of possible moderators and
-%% days for every event.
+%% A bus company operates services between a set of different cities.
+%% We want to design the routes of the buses for a given week.
+%% Everyday a bus must travel from one city to a DIFFERENT one, and
+%% stop there waiting until the next day. The following additional
+%% constraints need to be considered:
+%%
+%% - Everyday, there is exactly one bus departing from every city (we
+%%   can assume numCities = numBuses)
+%%
+%% - For every pair of different cities C1 and C2, there is at least one bus that goes from
+%%   C1 to C2 (in a certain day of the week). Note that we do not consider as valid the trip
+%%   from the last day of the week to the first one, since next week could have a different
+%%   route distribution.
+%%
+%% - No bus can travel more than a total of maxDist kms in two consecutive days.
 
-%%%%%%%%%%%%%%%%%%%% input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-numEvents(15).
-numDays(4).
-numModerators(4).
-maxEventsPerDay(4).
-maxDaysPerModerator(2).
+numBuses(5).
+numDays(7).
+cities([mad,bcn,val,bil,zar]).
+maxDist(1000).
 
-%event(id,listPossibleModerators,listPossibleDays).
-event(1, [  2  ,4],[  2    ]).
-event(2, [1,  3  ],[1,2,  4]).
-event(3, [1,2  ,4],[    3  ]).
-event(4, [1,  3,4],[1,2,  4]).
-event(5, [  2,3,4],[1,  3,4]).
-event(6, [    3,4],[1,2,3  ]).
-event(7, [1,2    ],[1,2,  4]).
-event(8, [1,2  ,4],[    3,4]).
-event(9, [  2,3  ],[1,2,3  ]).
-event(10,[    3,4],[1,2,  4]).
-event(11,[1,2  ,4],[1,2,3  ]).
-event(12,[  2,3  ],[    3,4]).
-event(13,[1,  3,4],[1,2    ]).
-event(14,[  2,3  ],[1,  3,4]).
-event(15,[  2  ,4],[  2,3  ]).
+%
+dist(mad,mad,0).
+dist(mad,bcn,630).
+dist(mad,val,360).
+dist(mad,bil,400).
+dist(mad,zar,320).
+%
+dist(bcn,mad,630).
+dist(bcn,bcn,0).
+dist(bcn,val,350).
+dist(bcn,bil,610).
+dist(bcn,zar,320).
+%
+dist(val,mad,360).
+dist(val,bcn,350).
+dist(val,val,0).
+dist(val,bil,610).
+dist(val,zar,310).
+%
+dist(bil,mad,400).
+dist(bil,bcn,610).
+dist(bil,val,610).
+dist(bil,bil,0).
+dist(bil,zar,300).
+%
+dist(zar,mad,320).
+dist(zar,bcn,320).
+dist(zar,val,310).
+dist(zar,bil,300).
+dist(zar,zar,0).
+
 
 %%%%%% Some helpful definitions to make the code cleaner:
-event(E):-             event(E,_,_).
-eventModerators(E,M):- event(E,M,_).
-eventDays(E,D):-       event(E,_,D).
-day(D):-               numDays(N), between(1,N,D).
-moderator(M):-         numModerators(N), between(1,N,M).
+
+day(D):-                    numDays(N),between(1,N,D).
+notLastDay(D):-             numDays(N), N1 is N-1, between(1,N1,D).
+consecutiveDays(D1,D2):-    numDays(N), N1 is N-1, between(1,N1,D1), D2 is D1+1.
+consecutiveDays(D1,D2,D3):- numDays(N), N1 is N-2, between(1,N1,D1), D2 is D1+1, D3 is D2+1.
+city(C):-                   cities(L),member(C,L).
+bus(B):-                    numBuses(N), between(1,N,B).
+trip(C1-C2):-               cities(L), member(C1,L), member(C2,L), C1 \= C2.
 
 %%%%%%  SAT Variables:
-satVariable( ed(E,D) ) :- event(E), day(D).
-satVariable( em(E,M) ):- event(E), moderator(M).
-satVariable( md(M,D) ) :- moderator(M), day(D).
+satVariable(bdc(B, D, C)):- bus(B), day(D), city(C).
+satVariable(tbd(C1, C2, B, D)):- trip(C1-C2), bus(B), day(D).
+
 
 writeClauses:-
-    eachEventaModerator,
-	eachModeratorAtMostMaxDays,
-	eachEventExactlyOneDay,
-	eachDaysatMostMaxEvents,
-	eachEventPossibleDaysAndModerator,
+    %bdcImpliestd,
+    tdImpliesbdc,
+    eachTripAtLeastOneBD,
+    eachDeachBexactlyOneT,
+    eachCeachDexactlyOneB,
+    eachBMaxDist,
     true,!.                    % this way you can comment out ANY previous line of writeClauses
-writeClauses:- told, nl, write('writeClauses failed!'), nl,nl.
+writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
-eachEventPossibleDaysAndModerator:- moderator(M), day(D), event(E), writeClause([-em(E,M), -ed(E,D), md(M,D)]),fail.
-eachEventPossibleDaysAndModerator.
+%bdcImpliestd:- bus(B), consecutiveDays(D1, D2), trip(C1-C2), writeClause([-bdc(B, D1, C1), -bdc(B, D2, C2), tbd(C1, C2, B, D1)]), fail.
+%bdcImpliestd.
 
-eachEventExactlyOneDay:- event(E), eventDays(E,D), findall(ed(E,D1), member(D1,D), Lits), exactly(1,Lits),fail.
-eachEventExactlyOneDay.
+tdImpliesbdc:- bus(B), consecutiveDays(D1, D2), trip(C1-C2), writeClause([-tbd(C1, C2, B, D1), bdc(B, D1, C1)]), writeClause([-tbd(C1, C2, B, D1), bdc(B, D2, C2)]), fail.
+tdImpliesbdc.
 
-eachEventaModerator:- event(E), eventModerators(E,M2), findall(em(E,M),member(M,M2),Lits),exactly(1,Lits),fail.
-eachEventaModerator.
+eachTripAtLeastOneBD:- trip(C1-C2), findall(tbd(C1, C2, B, D), (bus(B), notLastDay(D)), Lits), atLeast(1, Lits), fail.
+eachTripAtLeastOneBD.
 
-eachModeratorAtMostMaxDays:- moderator(M), maxDaysPerModerator(A),findall(md(M,D), day(D), Lits), atMost(A,Lits),fail.
-eachModeratorAtMostMaxDays.
+%eachDeachBexactlyOneT:- bus(B), day(D), findall(bdc(B, D, C), city(C), Lits), exactly(1, Lits), fail.
+eachDeachBexactlyOneT:- bus(B), day(D), findall(tbd(C1, C2, B, D), trip(C1-C2), Lits), exactly(1, Lits), fail.
+eachDeachBexactlyOneT.
 
-eachDaysatMostMaxEvents:- day(D), maxEventsPerDay(A), findall(ed(E,D), event(E), Lits), atMost(A,Lits),fail.
-eachDaysatMostMaxEvents.
- 
+eachCeachDexactlyOneB:- city(C), day(D), findall(bdc(B, D, C), bus(B), Lits), exactly(1, Lits), fail.
+%eachCeachDexactlyOneB:- city(C), day(D), findall(tbd(C, C2, B, D), (trip(C-C2), bus(B)), Lits), exactly(1, Lits), fail.
+eachCeachDexactlyOneB.
+
+eachBMaxDist:- maxDist(DistMax), bus(B), consecutiveDays(D1, D2, _), trip(C1-C2), trip(C2-C3), dist(C1, C2, Dist1), dist(C2, C3, Dist2),
+                DistT is Dist1+Dist2, DistT>DistMax, writeClause([-tbd(C1, C2, B, D1), -tbd(C2, C3, B, D2)]), fail.
+eachBMaxDist.
+
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% show the solution. Here M contains the literals that are true in the model:
-
+%displaySol(M):-
+    %nl,
+    %day(D), write('Day '), write(D), write(': '),
+    %findall(bus(B)-C1-C2, member(tbd(C1, C2, B, D), M), L), write(L), nl, fail.
 displaySol(M):-
-    day(D), nl, write('Day '), write(D), write(': '),
-    findall(E-Mod,(member(ed(E,D),M), member(em(E,Mod),M)), L),
-    member(E-Mod,L), write(' event('), write(E), write(')-mod('), write(Mod), write(') '), fail.
-displaySol(M):-nl,
-    moderator(Mod), nl, findall(D,(member(ed(E,D),M), member(em(E,Mod),M)), L),
-    write('Moderator '), write(Mod), write( ' works: '), sort(L,L1), write(L1), fail.
+    nl,
+    day(D), write('Day '), write(D), write(': '),
+    findall(C-bus(B),member(bdc(B,D,C), M), L), write(L), nl, fail.
+displaySol(M):-
+    nl,
+    trip(C1-C2), nl, write('Trip '), write(C1-C2), write(':'),
+    findall(B-D, (member(bdc(B,D,C1),M), member(bdc(B,D2,C2),M), D2 is D+1), L), member(B1-D1,L), write(' (Bus '), write(B1), write(', Day '), write(D1), write(') '), fail.
+displaySol(M):-
+    nl, bus(B), nl, write('Consec. distances for bus '), write(B), write(': '),
+    consecutiveDays(D1,D2,D3),
+    member(bdc(B,D1,C1),M), member(bdc(B,D2,C2),M), member(bdc(B,D3,C3),M),
+    dist(C1,C2,Dist1), dist(C2,C3,Dist2), Dist is Dist1 + Dist2, write(Dist), write(' '), fail.
 displaySol(_).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Everything below is given as a standard library, reusable for solving 
+% Everything below is given as a standard library, reusable for solving
 %    with SAT many different problems.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Express that Var is equivalent to the disjunction of Lits:
-expressOr( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> or('), write(Lits), write(')'), nl, !. 
+expressOr( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> or('), write(Lits), write(')'), nl, !.
 expressOr( Var, Lits ):- member(Lit,Lits), negate(Lit,NLit), writeClause([ NLit, Var ]), fail.
 expressOr( Var, Lits ):- negate(Var,NVar), writeClause([ NVar | Lits ]),!.
 
 % Express that Var is equivalent to the conjunction of Lits:
-expressAnd( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> and('), write(Lits), write(')'), nl, !. 
+expressAnd( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> and('), write(Lits), write(')'), nl, !.
 expressAnd( Var, Lits):- member(Lit,Lits), negate(Var,NVar), writeClause([ NVar, Lit ]), fail.
 expressAnd( Var, Lits):- findall(NLit, (member(Lit,Lits), negate(Lit,NLit)), NLits), writeClause([ Var | NLits]), !.
 
@@ -142,7 +183,7 @@ shell('picosat -v -o model infile.cnf', Result),  % if sat: Result=10; if unsat:
 treatResult(20):- write('Unsatisfiable'), nl, halt.
 treatResult(10):- write('Solution found: '), nl, see(model), symbolicModel(M), seen, displaySol(M), nl,nl,halt.
 treatResult( _):- write('cnf input error. Wrote anything strange in your cnf?'), nl,nl, halt.
-    
+
 
 initClauseGeneration:-  %initialize all info about variables and clauses:
 	retractall(numClauses(   _)),
@@ -154,8 +195,8 @@ initClauseGeneration:-  %initialize all info about variables and clauses:
 writeClause([]):- symbolicOutput(1),!, nl.
 writeClause([]):- countClause, write(0), nl.
 writeClause([Lit|C]):- w(Lit), writeClause(C),!.
-w(-Var):- symbolicOutput(1), satVariable(Var), write(-Var), write(' '),!. 
-w( Var):- symbolicOutput(1), satVariable(Var), write( Var), write(' '),!. 
+w(-Var):- symbolicOutput(1), satVariable(Var), write(-Var), write(' '),!.
+w( Var):- symbolicOutput(1), satVariable(Var), write( Var), write(' '),!.
 w(-Var):- satVariable(Var),  var2num(Var,N),   write(-), write(N), write(' '),!.
 w( Var):- satVariable(Var),  var2num(Var,N),             write(N), write(' '),!.
 w( Lit):- told, write('ERROR: generating clause with undeclared variable in literal '), write(Lit), nl,nl, halt.

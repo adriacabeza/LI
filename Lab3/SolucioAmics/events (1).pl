@@ -39,35 +39,38 @@ eventDays(E,D):-       event(E,_,D).
 day(D):-               numDays(N), between(1,N,D).
 moderator(M):-         numModerators(N), between(1,N,M).
 
+% Minr
+moderatorDays(M, D) :- event(_,M,D).
+
 %%%%%%  SAT Variables:
-satVariable( ed(E,D) ) :- event(E), day(D).
-satVariable( em(E,M) ):- event(E), moderator(M).
-satVariable( md(M,D) ) :- moderator(M), day(D).
+satVariable( ed(E, D) ):- event(E), day(D).
+satVariable( em(E, M) ):- event(E), moderator(M).
+satVariable( md(M, D) ):- moderator(M), day(D).
 
-writeClauses:-
-    eachEventaModerator,
-	eachModeratorAtMostMaxDays,
-	eachEventExactlyOneDay,
-	eachDaysatMostMaxEvents,
-	eachEventPossibleDaysAndModerator,
+writeClauses:- 
+    exactlyOneDayPerEvent,
+    exactlyOneModeratorPerEvent,
+    eachDayAtMostKEvents,
+    eachModeratorAtMostKDays,
+    relateAll,
     true,!.                    % this way you can comment out ANY previous line of writeClauses
-writeClauses:- told, nl, write('writeClauses failed!'), nl,nl.
+writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
-eachEventPossibleDaysAndModerator:- moderator(M), day(D), event(E), writeClause([-em(E,M), -ed(E,D), md(M,D)]),fail.
-eachEventPossibleDaysAndModerator.
+exactlyOneDayPerEvent :- event(E), eventDays(E, D2), findall(ed(E, D), member(D, D2), Lits ), exactly(1, Lits), fail.
+exactlyOneDayPerEvent.
 
-eachEventExactlyOneDay:- event(E), eventDays(E,D), findall(ed(E,D1), member(D1,D), Lits), exactly(1,Lits),fail.
-eachEventExactlyOneDay.
+exactlyOneModeratorPerEvent :- event(E), eventModerators(E, M2), findall( em(E, M), member(M, M2), Lits ), exactly(1, Lits), fail.
+exactlyOneModeratorPerEvent.
 
-eachEventaModerator:- event(E), eventModerators(E,M2), findall(em(E,M),member(M,M2),Lits),exactly(1,Lits),fail.
-eachEventaModerator.
+eachDayAtMostKEvents :- day(D), findall( ed(E, D), event(E), Lits ), maxEventsPerDay(K), atMost(K, Lits), fail.
+eachDayAtMostKEvents.
 
-eachModeratorAtMostMaxDays:- moderator(M), maxDaysPerModerator(A),findall(md(M,D), day(D), Lits), atMost(A,Lits),fail.
-eachModeratorAtMostMaxDays.
+eachModeratorAtMostKDays :- moderator(M), findall( md(M, D), day(D), Lits ), maxDaysPerModerator(K), atMost(K, Lits), fail.
+eachModeratorAtMostKDays.
 
-eachDaysatMostMaxEvents:- day(D), maxEventsPerDay(A), findall(ed(E,D), event(E), Lits), atMost(A,Lits),fail.
-eachDaysatMostMaxEvents.
- 
+relateAll :- event(E), moderator(M), day(D), writeClause([-em(E, M), -ed(E, D), md(M, D)]), fail.
+relateAll.
+
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% show the solution. Here M contains the literals that are true in the model:
 

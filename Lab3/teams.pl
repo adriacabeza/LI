@@ -1,5 +1,5 @@
 :-dynamic(varNumber/3).
-symbolicOutput(0). % set to 1 to see symbolic output only; 0 otherwise.
+symbolicOutput(1). % set to 1 to see symbolic output only; 0 otherwise.
 
 % A company needs to distribute its employees in working teams of size
 % between minSize and maxSize. In order to avoid fights between them,

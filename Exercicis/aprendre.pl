@@ -161,7 +161,7 @@ es_palindromo([]).
 es_palindromo([_]) :- !. % regla adecuada
 es_palindromo([X|L]) :- concat(L1,[X],L), es_palindromo(L1). 
 
-palindroms(L) :- setof(P,(permutation(L,P), es_palindromo(P)),S), write(S). 
+palindroms(L) :- setof(P,(permutacion(L,P), es_palindromo(P)),S), write(S). 
 
 
 %19
@@ -304,7 +304,7 @@ casas:- Sol = [[1, _, _, _, _, _],
 
 
       
-queens :- permutation([1,2,3,4,5,6,7,8], PermutedList),
+queens :- permutacion([1,2,3,4,5,6,7,8], PermutedList),
           allOK(PermutedList),
           printQueens(PermutedList).
 
