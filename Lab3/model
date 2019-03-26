@@ -5,5 +5,39 @@ c
 c using 2 as default phase
 c
 c parsing infile.cnf
-c parsed header 'p cnf 100 388650'
-infile.cnf:113146: trailing 0 missing
+c parsed header 'p cnf 100 388830'
+c initialized 100 variables
+c found 388830 non trivial clauses
+c
+c random number generator seed 0
+c 
+c  seconds     variables   original    learned     agility
+c         level        used      conflicts    limit          MB
+c 
+c 0   0.1   0.0     0 100.0 387e3     1     0     0   0.0  46.5 
+c 
+c  seconds     variables   original    learned     agility
+c         level        used      conflicts    limit          MB
+c 
+s UNSATISFIABLE
+c
+c 0 iterations
+c 0 restarts
+c 0 failed literals
+c 1 conflicts
+c 0 decisions
+c 100 fixed variables
+c 0 learned literals
+c 0.0% deleted literals
+c 0 propagations
+c 0 visits
+c 100.0% variables used
+c 0.1 seconds in library
+c 0.0 megaprops/second
+c 0.0 megavisits/second
+c probing 0.0 seconds 0%
+c 0 simplifications
+c 0 reductions
+c 0.0 MB recycled
+c 46.5 MB maximally allocated
+c 0.1 seconds total run time

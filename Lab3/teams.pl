@@ -1,5 +1,5 @@
 :-dynamic(varNumber/3).
-symbolicOutput(1). % set to 1 to see symbolic output only; 0 otherwise.
+symbolicOutput(0). % set to 1 to see symbolic output only; 0 otherwise.
 
 % A company needs to distribute its employees in working teams of size
 % between minSize and maxSize. In order to avoid fights between them,
@@ -58,16 +58,16 @@ incompatibleWorkers(W1,W2):- score(W1,S1), score(W2,S2), maxScore(M), S1+S2 > M 
 satVariable( wt(W,T) ):- worker(W), team(T).
 
 writeClauses:-  
-    eachPairAtMostMaxScore,
     eachWorkerExactlyOneTeam, 
     eachTeamAtLeastSize,
     eachTeamAtMostSize,
+	workersCompatible,
     true,!.
-writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
+writeClauses:- told, nl, write('writeClauses failed!'), nl,nl.
 
-eachPairAtMostMaxScore:- worker(W1), worker(W2), W1\=W2 -incompatibleWorkers(W1,W2), 
-wt(W1,T1), wt(W2,T2), T1 = T2, fail. 
-eachPairAtMostMaxScore.
+workersCompatible:- worker(W1), worker(W2), team(T),incompatibleWorkers(W1,W2),
+writeClause([-wt(W1,T),-wt(W2,T)]), fail. 
+workersCompatible.
 
 eachTeamAtMostSize:- team(T), maxSize(M),  findall(wt(W,T), worker(W),Lits) ,atMost(M,Lits), fail.
 eachTeamAtMostSize.

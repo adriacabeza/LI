@@ -40,11 +40,25 @@ day(D):-               numDays(N), between(1,N,D).
 moderator(M):-         numModerators(N), between(1,N,M).
 
 %%%%%%  SAT Variables:
-
-
-writeClauses:- 
+writeClauses:-
+    eachEventaModerator,
+	eachModeratorAtMostMaxDays,
+	eachDaysatMostMaxEvents,
+	eachEventPossibleDaysAndModerator,
     true,!.                    % this way you can comment out ANY previous line of writeClauses
-writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
+writeClauses:- told, nl, write('writeClauses failed!'), nl,nl.
+
+eachEventPossibleDaysAndModerator:- moderator(M), day(D), event(E),  eventModerators(E,M), eventDays(E,D), writeClause([event(E,M,D)]),fail.
+eachEventPossibleDaysAndModerator.
+
+eachEventaModerator:- event(E), moderator(M), findall(eventModerators(E,M),moderator(M),Lits),exactly(1,Lits),fail.
+eachEventaModerator.
+
+eachModeratorAtMostMaxDays:- moderator(M), day(D), maxDaysPerModerator(A),findall(eventDays(E,D), eventModerators(E,M), moderator(M), Lits), atMost(A,Lits),fail.
+eachModeratorAtMostMaxDays.
+
+eachDaysatMostMaxEvents:- event(E), day(D), maxEventsPerDay(A), findall(eventDays(E,D), day(D), Lits), atMost(A,Lits),fail.
+eachDaysatMostMaxEvents.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%

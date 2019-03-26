@@ -68,8 +68,12 @@ trip(C1-C2):-               cities(L), member(C1,L), member(C2,L), C1 \= C2.
 
 
 writeClauses:- 
+    maxDistance,
+
     true,!.                    % this way you can comment out ANY previous line of writeClauses
-writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
+writeClauses:- told, nl, write('writeClauses failed!'), nl,nl.
+
+maxDistance:- bus(B), maxDist(M), consecutiveDays(D1,D2), notLastDay(D1), fail. %em falta saber la distància
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
