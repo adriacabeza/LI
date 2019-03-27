@@ -1,5 +1,5 @@
 :-dynamic(varNumber/3).
-symbolicOutput(1). % set to 1 to see symbolic output only; 0 otherwise.
+symbolicOutput(0). % set to 1 to see symbolic output only; 0 otherwise.
 
 % A company needs to distribute its employees in working teams of size
 % between minSize and maxSize. In order to avoid fights between them,
@@ -50,7 +50,7 @@ score(20, 1).
 worker(W):-numWorkers(N), between(1,N,W).
 workerScore(W,S):-worker(W), score(W,S).
 team(T):- numTeams(N), between(1,N,T).
-incompatibleWorkers(W1,W2):- score(W1,S1), score(W2,S2), maxScore(M), S1+S2 > M ,true. 
+incompatibleWorkers(W1,W2):-worker(W1), worker(W2), score(W1,S1), score(W2,S2), maxScore(M), S1+S2 > M ,true. 
 
 %%%%%%  SAT Variables:
 
@@ -65,7 +65,7 @@ writeClauses:-
     true,!.
 writeClauses:- told, nl, write('writeClauses failed!'), nl,nl.
 
-workersCompatible:- worker(W1), worker(W2), team(T),incompatibleWorkers(W1,W2),
+workersCompatible:- worker(W1), worker(W2), team(T), incompatibleWorkers(W1,W2),
 writeClause([-wt(W1,T),-wt(W2,T)]), fail. 
 workersCompatible.
 
@@ -75,7 +75,7 @@ eachTeamAtMostSize.
 eachTeamAtLeastSize:- team(T), minSize(M),  findall(wt(W,T), worker(W),Lits) , atLeast(M,Lits),fail.
 eachTeamAtLeastSize.
 
-eachWorkerExactlyOneTeam:- worker(W), team(T), findall(wt(W,T), team(T), Lits) , exactly(1,Lits), fail. 
+eachWorkerExactlyOneTeam:- worker(W), findall(wt(W,T), team(T), Lits) , exactly(1,Lits), fail. 
 eachWorkerExactlyOneTeam.
     
 
@@ -143,9 +143,9 @@ write('Calling solver....'), nl,
 shell('picosat -v -o model infile.cnf', Result),  % if sat: Result=10; if unsat: Result=20.
 	treatResult(Result),!.
 
-treatResult(20):- write('Unsatisfiable'), nl, halt.
-treatResult(10):- write('Solution found: '), nl, see(model), symbolicModel(M), seen, displaySol(M), nl,nl,halt.
-treatResult( _):- write('cnf input error. Wrote anything strange in your cnf?'), nl,nl, halt.
+treatResult(20):- write('Unsatisfiable'), nl.
+treatResult(10):- write('Solution found: '), nl, see(model), symbolicModel(M), seen, displaySol(M), nl,nl.
+treatResult( _):- write('cnf input error. Wrote anything strange in your cnf?'), nl,nl.
     
 
 initClauseGeneration:-  %initialize all info about variables and clauses:

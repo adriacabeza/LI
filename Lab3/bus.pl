@@ -64,17 +64,39 @@ city(C):-                   cities(L),member(C,L).
 bus(B):-                    numBuses(N), between(1,N,B).
 trip(C1-C2):-               cities(L), member(C1,L), member(C2,L), C1 \= C2.
 
-%%%%%%  SAT Variables:
+%preguntar pq hi ha guió i no ciutat
 
+%%%%%%  SAT Variables:
+satVariable(bdc(B,D,C)):- bus(B), day(D), city(C).
+satVariable(tbd(C1,C2,B,D)):- bus(B), trip(C1-C2), bus(B), day(D).
 
 writeClauses:- 
+    eachCityexactlyOneBus,
+    eachDayeachBusexactlyOneTrip,
+    eachTripatLeastOneBus,
     maxDistance,
-
+    tbdTobc,
     true,!.                    % this way you can comment out ANY previous line of writeClauses
 writeClauses:- told, nl, write('writeClauses failed!'), nl,nl.
 
-maxDistance:- bus(B), maxDist(M), consecutiveDays(D1,D2), notLastDay(D1), fail. %em falta saber la distància
+eachTripatLeastOneBus:- trip(C1-C2), day(D), findall(tbd(C1,C2,B,D), bus(B), Lits), atLeast(1, Lits).
+eachTripatLeastOneBus.
 
+tbdTobc:- bus(B), consecutiveDays(D1,D2), trip(C1-C2),writeClause([-tbd(C1,C2,B,D1),bdc(B,D1,C1)]),
+            writeClause([-tbd(C1,C2,B,D1),bdc(B,D2,C2)]),fail.
+tbdTobc.
+
+eachDayeachBusexactlyOneTrip:- day(D),bus(B), findall(tbd(C1,C2,B,D), trip(C1-C2), Lits), exactly(1,Lits).
+eachDayeachBusexactlyOneTrip.
+
+
+eachCityexactlyOneBus:- city(C1), day(D), findall(bdc(B,D,C1), bus(B), Lits), exactly(1,Lits).
+eachCityexactlyOneBus.
+
+maxDistance:- bus(B), maxDist(M), consecutiveDays(D1,D2), trip(C1-C2), 
+                trip(C2-C3), dist(C1,C2,D1), dist(C2,C3,D2), D3 is D1+D2, D3 > M,
+                writeClause([-tbd(C1,C2,B,D1), -tbd(C2,C3,B,D2)]), fail. %em falta saber la distància
+maxDistance.
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% show the solution. Here M contains the literals that are true in the model:
