@@ -50,7 +50,7 @@ score(20, 1).
 worker(W):-numWorkers(N), between(1,N,W).
 workerScore(W,S):-worker(W), score(W,S).
 team(T):- numTeams(N), between(1,N,T).
-incompatibleWorkers(W1,W2):-worker(W1), worker(W2), score(W1,S1), score(W2,S2), maxScore(M), S1+S2 > M ,true. 
+incompatibleWorkers(W1,W2):-worker(W1), worker(W2), score(W1,S1), score(W2,S2), maxScore(M), S1+S2 > M. 
 
 %%%%%%  SAT Variables:
 
@@ -65,7 +65,7 @@ writeClauses:-
     true,!.
 writeClauses:- told, nl, write('writeClauses failed!'), nl,nl.
 
-workersCompatible:- worker(W1), worker(W2), team(T), incompatibleWorkers(W1,W2),
+workersCompatible:- worker(W1), worker(W2), team(T), incompatibleWorkers(W1,W2), W1 \= W2, 
 writeClause([-wt(W1,T),-wt(W2,T)]), fail. 
 workersCompatible.
 
