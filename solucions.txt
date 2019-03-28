@@ -1,0 +1,213 @@
+//////////EXAMEN:ESTUDIANTS//////////////
+?- [exam11].
+true.
+
+?- main.
+Generated 174880 clauses over 80 variables. 
+Calling solver....
+Solution found: 
+
+Team 1: [14,15,16,18,20]
+Team 2: [11,12,13,17,19]
+Team 3: [5,6,7,8,9]
+Team 4: [1,2,3,4,10]
+
+
+Student: 1
+Last year: [1,5,7,12,11]
+This year: [1,2,3,4,10]
+Coincidence: []
+
+Student: 2
+Last year: [2,4,15,17,18]
+This year: [1,2,3,4,10]
+Coincidence: [4]
+
+Student: 3
+Last year: [3,14,10,8,6]
+This year: [1,2,3,4,10]
+Coincidence: [10]
+
+Student: 4
+Last year: [2,4,15,17,18]
+This year: [1,2,3,4,10]
+Coincidence: [2]
+
+Student: 5
+Last year: [1,5,7,12,11]
+This year: [5,6,7,8,9]
+Coincidence: [7]
+
+Student: 6
+Last year: [3,14,10,8,6]
+This year: [5,6,7,8,9]
+Coincidence: [8]
+
+Student: 7
+Last year: [1,5,7,12,11]
+This year: [5,6,7,8,9]
+Coincidence: [5]
+
+Student: 8
+Last year: [3,14,10,8,6]
+This year: [5,6,7,8,9]
+Coincidence: [6]
+
+Student: 9
+Last year: [20,19,13,9,16]
+This year: [5,6,7,8,9]
+Coincidence: []
+
+Student: 10
+Last year: [3,14,10,8,6]
+This year: [1,2,3,4,10]
+Coincidence: [3]
+
+Student: 11
+Last year: [1,5,7,12,11]
+This year: [11,12,13,17,19]
+Coincidence: [12]
+
+Student: 12
+Last year: [1,5,7,12,11]
+This year: [11,12,13,17,19]
+Coincidence: [11]
+
+Student: 13
+Last year: [20,19,13,9,16]
+This year: [11,12,13,17,19]
+Coincidence: [19]
+
+Student: 14
+Last year: [3,14,10,8,6]
+This year: [14,15,16,18,20]
+Coincidence: []
+
+Student: 15
+Last year: [2,4,15,17,18]
+This year: [14,15,16,18,20]
+Coincidence: [18]
+
+Student: 16
+Last year: [20,19,13,9,16]
+This year: [14,15,16,18,20]
+Coincidence: [20]
+
+Student: 17
+Last year: [2,4,15,17,18]
+This year: [11,12,13,17,19]
+Coincidence: []
+
+Student: 18
+Last year: [2,4,15,17,18]
+This year: [14,15,16,18,20]
+Coincidence: [15]
+
+Student: 19
+Last year: [20,19,13,9,16]
+This year: [11,12,13,17,19]
+Coincidence: [13]
+
+Student: 20
+Last year: [20,19,13,9,16]
+This year: [14,15,16,18,20]
+Coincidence: [16]
+
+///////////////EXAMEN:REPRESENTANTS///////
+
+?- [exam22].
+true.
+
+?- main.
+Generated 3494 clauses over 15 variables. 
+Calling solver....
+Solution found: 
+Elected: 
+1-baix
+6-viny
+14-dalt
+15-rasa
+
+
+///////////////LAB3:TEAMS//////////
+
+?- [teams].
+true.
+
+?- main.
+Generated 388930 clauses over 100 variables. 
+Calling solver....
+Solution found: 
+Team 1: [11-score(7),14-score(4),20-score(1)] ## Max sum of pairs 11
+Team 2: [12-score(9),17-score(3),19-score(2)] ## Max sum of pairs 12
+Team 3: [13-score(3),15-score(9),16-score(1)] ## Max sum of pairs 12
+Team 4: [6-score(10),7-score(2),8-score(1),9-score(4),10-score(2)] ## Max sum of pairs 14
+Team 5: [1-score(2),2-score(6),3-score(3),4-score(4),5-score(6),18-score(8)] ## Max sum of pairs 14
+
+////////////////////LAB3:BUS//////////////
+?- [bus].
+true.
+
+?- main.
+Generated 8890 clauses over 875 variables. 
+Calling solver....
+Solution found: 
+
+Day 1: [mad-bus(5),bcn-bus(1),val-bus(2),bil-bus(3),zar-bus(4)]
+Day 2: [mad-bus(1),bcn-bus(3),val-bus(5),bil-bus(4),zar-bus(2)]
+Day 3: [mad-bus(4),bcn-bus(2),val-bus(1),bil-bus(3),zar-bus(5)]
+Day 4: [mad-bus(1),bcn-bus(5),val-bus(3),bil-bus(2),zar-bus(4)]
+Day 5: [mad-bus(4),bcn-bus(3),val-bus(1),bil-bus(5),zar-bus(2)]
+Day 6: [mad-bus(5),bcn-bus(2),val-bus(3),bil-bus(4),zar-bus(1)]
+Day 7: [mad-bus(4),bcn-bus(5),val-bus(1),bil-bus(3),zar-bus(2)]
+
+
+Trip mad-bcn: (Bus 5, Day 6) 
+Trip mad-val: (Bus 5, Day 1)  (Bus 1, Day 2)  (Bus 1, Day 4) 
+Trip mad-bil: (Bus 4, Day 5) 
+Trip mad-zar: (Bus 4, Day 3) 
+Trip bcn-mad: (Bus 1, Day 1) 
+Trip bcn-val: (Bus 3, Day 5) 
+Trip bcn-bil: (Bus 3, Day 2)  (Bus 2, Day 3)  (Bus 5, Day 4) 
+Trip bcn-zar: (Bus 2, Day 6) 
+Trip val-mad: (Bus 1, Day 3) 
+Trip val-bcn: (Bus 3, Day 4) 
+Trip val-bil: (Bus 3, Day 6) 
+Trip val-zar: (Bus 2, Day 1)  (Bus 5, Day 2)  (Bus 1, Day 5) 
+Trip bil-mad: (Bus 4, Day 2)  (Bus 5, Day 5)  (Bus 4, Day 6) 
+Trip bil-bcn: (Bus 3, Day 1) 
+Trip bil-val: (Bus 3, Day 3) 
+Trip bil-zar: (Bus 2, Day 4) 
+Trip zar-mad: (Bus 4, Day 4) 
+Trip zar-bcn: (Bus 2, Day 2)  (Bus 5, Day 3)  (Bus 2, Day 5) 
+Trip zar-val: (Bus 1, Day 6) 
+Trip zar-bil: (Bus 4, Day 1) 
+
+Consec. distances for bus 1: 990 720 720 670 620 
+Consec. distances for bus 2: 630 930 910 620 640 
+Consec. distances for bus 3: 1220 1220 960 700 960 
+Consec. distances for bus 4: 700 720 640 720 800 
+Consec. distances for bus 5: 670 630 930 1010 1030 
+
+
+
+
+////////////LAB3:EVENTS///////////////////
+?- [events].
+true.
+
+?- main.
+Generated 12356 clauses over 136 variables. 
+Calling solver....
+Solution found: 
+
+Day 1:  event(7)-mod(2)  event(9)-mod(3)  event(11)-mod(2)  event(13)-mod(3) 
+Day 2:  event(1)-mod(4)  event(4)-mod(4)  event(10)-mod(4)  event(15)-mod(4) 
+Day 3:  event(3)-mod(4)  event(5)-mod(4)  event(6)-mod(4)  event(8)-mod(4) 
+Day 4:  event(2)-mod(3)  event(12)-mod(3)  event(14)-mod(3) 
+
+Moderator 1 works: []
+Moderator 2 works: [1]
+Moderator 3 works: [1,4]
+Moderator 4 works: [2,3]
+

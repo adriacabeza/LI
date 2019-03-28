@@ -31,7 +31,7 @@ lastYearTeam([2,4,15,17,18]).
 student(S):-numStudents(N), between(1,N,S).
 team(T):-   numTeams(N),    between(1,N,T).
 incompatible(S1,S2):- %% returns a pair of students that coincided last year
-    student(S1), student(S2), S1 < S2, lastYearTeam(L), member(S1,L), member(S2,L), !, fail. % COMPLETE THIS!
+    student(S1), student(S2), S1 < S2, lastYearTeam(L), member(S1,L), member(S2,L). % COMPLETE THIS!
 
 %%%%%%  SAT Variables:
 satVariable( st(S,T) ):- student(S), team(T). % student S goes to team T
@@ -46,10 +46,10 @@ writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
 allTeamsSameSize:- team(T), findall(st(S,T), student(S), Lits), teamSize(M), exactly(M,Lits),fail.
 allTeamsSameSize.
 
-eachStudentOneTeam:- student(S1), findall(st(S,T), team(T), Lits), exactly(1,Lits), fail.
+eachStudentOneTeam:- student(S1), findall(st(S1,T), team(T), Lits), exactly(1,Lits), fail.
 eachStudentOneTeam.
 
-everyStudentAtMostOneFromLastYear:- student(S1), student(S2), incompatible(S1,S3), incompatible(S1,S2), team(T), writeClause([-st(S1,T), -st(S2,T), -st(S3,T)]),fail.
+everyStudentAtMostOneFromLastYear:- student(S1), student(S2), student(S3),S2\=S3, incompatible(S1,S3), incompatible(S1,S2), team(T), writeClause([-st(S1,T), -st(S2,T), -st(S3,T)]),fail.
 everyStudentAtMostOneFromLastYear.
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% show the solution. Here M contains the literals that are true in the model:

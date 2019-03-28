@@ -68,7 +68,7 @@ trip(C1-C2):-               cities(L), member(C1,L), member(C2,L), C1 \= C2.
 
 %%%%%%  SAT Variables:
 satVariable(bdc(B,D,C)):- bus(B), day(D), city(C).
-satVariable(tbd(C1,C2,B,D)):- bus(B), trip(C1-C2), bus(B), day(D).
+satVariable(tbd(C1,C2,B,D)):- bus(B), trip(C1-C2), day(D).
 
 writeClauses:- 
     eachCityexactlyOneBus,
@@ -76,26 +76,30 @@ writeClauses:-
     eachTripatLeastOneBus,
     maxDistance,
     tbdTobc,
+    bcTotbd,
     true,!.                    % this way you can comment out ANY previous line of writeClauses
 writeClauses:- told, nl, write('writeClauses failed!'), nl,nl.
 
-eachTripatLeastOneBus:- trip(C1-C2), day(D), findall(tbd(C1,C2,B,D), bus(B), Lits), atLeast(1, Lits).
+eachTripatLeastOneBus:- trip(C1-C2),findall(tbd(C1,C2,B,D), (bus(B),notLastDay(D)), Lits), atLeast(1, Lits),fail.
 eachTripatLeastOneBus.
 
 tbdTobc:- bus(B), consecutiveDays(D1,D2), trip(C1-C2),writeClause([-tbd(C1,C2,B,D1),bdc(B,D1,C1)]),
             writeClause([-tbd(C1,C2,B,D1),bdc(B,D2,C2)]),fail.
 tbdTobc.
 
-eachDayeachBusexactlyOneTrip:- day(D),bus(B), findall(tbd(C1,C2,B,D), trip(C1-C2), Lits), exactly(1,Lits).
+bcTotbd:- bus(B), consecutiveDays(D1,D2), trip(C1-C2), writeClause([-bdc(B,D1,C1),-bdc(B,D2,C2), tbd(C1,C2,B,D1)]),fail.
+bcTotbd.
+
+eachDayeachBusexactlyOneTrip:- day(D),bus(B), findall(tbd(C1,C2,B,D), trip(C1-C2), Lits), exactly(1,Lits),fail.
 eachDayeachBusexactlyOneTrip.
 
 
-eachCityexactlyOneBus:- city(C1), day(D), findall(bdc(B,D,C1), bus(B), Lits), exactly(1,Lits).
+eachCityexactlyOneBus:- city(C1), day(D), findall(bdc(B,D,C1), bus(B), Lits), exactly(1,Lits),fail.
 eachCityexactlyOneBus.
 
 maxDistance:- bus(B), maxDist(M), consecutiveDays(D1,D2), trip(C1-C2), 
-                trip(C2-C3), dist(C1,C2,D1), dist(C2,C3,D2), D3 is D1+D2, D3 > M,
-                writeClause([-tbd(C1,C2,B,D1), -tbd(C2,C3,B,D2)]), fail. %em falta saber la distància
+                trip(C2-C3), dist(C1,C2,DT1), dist(C2,C3,DT2), D3 is DT1+DT2, D3 > M,
+                writeClause([-tbd(C1,C2,B,D1), -tbd(C2,C3,B,D2)]), fail. 
 maxDistance.
 
 %%%%%%%%%%%%%%%%%%%%%%%
