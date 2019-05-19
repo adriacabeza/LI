@@ -12,6 +12,9 @@ make
 
 ## [Lab 2: Prolog](https://github.com/adriacabeza/LI/tree/master/Lab2)
 
+Set of several problems with Prolog.
+
+
 First you have to install swipl:
 
 ```bash 
@@ -26,3 +29,23 @@ How to execute
 swipl
 [name_of_the_program].
 ```
+
+## [Lab3: SAT with Prolog](https://github.com/adriacabeza/LI/tree/master/Lab3)
+
+- Bus
+- Events
+- Teams
+
+## [Lab4: Optimization with SAT and Prolog]((https://github.com/adriacabeza/LI/tree/master/Lab4)
+- Teams 
+- MinColoring
+- Horaris
+
+
+## [Lab5 : Advanced Prolog]((https://github.com/adriacabeza/LI/tree/master/PrologAvanzado)
+- TSP
+- Tomografia
+- Squares
+- Monedas
+- Cubo
+
