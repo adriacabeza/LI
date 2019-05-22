@@ -88,19 +88,93 @@ satVariable( cdh(C,D,H) ):- course(C), day(D), hour(H).
 satVariable( cp(C,P)    ):- course(C), professor(P).
 % cr(C,R) meaning "course C taught in room R"
 satVariable( cr(C,R)    ):- course(C), room(R).
-%% Use at least the previuos variables. Otherwise you should change displaySol.
-%% However, more variables might be needed....
-
+% cd(C,D) meaning "course C taught in day D"
+satVariable( cd(C,D) ):- course(C), day(D).
+%cdhp(C,D,H,P) meaning "course C taught on day D, hour H and professor P"
+satVariable( cdhp(C,D,H,P) ):- course(C), day(D), hour(H), professor(P).
+%cdhr(C,D,H,R) meaning "course C taught on day D, hour H and room R"
+satVariable( cdhr(C,D,H,R) ):- course(C), day(D), hour(H), room(R). 
+% sat variable meaning P is a chosen professor
+satVariable( p(P) ):- professor(P).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2. This predicate writeClauses(MaxCost) generates the clauses that guarantee that
 % a solution with cost at most MaxCost is found
 
 writeClauses(infinite):- !, N = 1000, writeClauses(N),!. % N = 1000 should be replaced with by right N
 writeClauses(MaxNumProf):-
-    true,!.
+	exactly1ValidRoomPerCourse,
+	exactly1ValidProfessorPerCourse,
+	cdrANDcdhTOcdhr,
+	cdhrANDcrTOcdh,	
+	atMostOneProfessorPerDayHour,
+	eachProfessorAvailableCourses,
+	eachCourseHasAvailableProfessors,
+	eachCourseatMostOneHourPerDay,
+	cdhimpliescd,
+	cdimpliescdh,
+	exactlyCourseHours,
+	coursesOverlap,
+	maxNumProfs(MaxNumProf),
+	true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
 
+
+%eachCourseatMostOneHourPerDay
+eachCourseatMostOneHourPerDay:- course(C), day(D), findall(cdh(C,D,H), hour(H), Lits), atMost(1,Lits),fail.
+eachCourseatMostOneHourPerDay.
+
+% CDH -> CD
+cdhimpliescd:-course(C), day(D), hour(H), writeClause([-cdh(C,D,H), cd(C,D)]), fail.
+cdhimpliescd.
+
+% CD -> CDH V CDH2 V ...
+cdimpliescdh:- course(C), day(D), findall(cdh(C,D,H), hour(H), L), writeClause([-cd(C,D) | L]),fail.
+cdimpliescdh.
+
+% Courses of the same year cannot have overlap
+coursesOverlap:- day(D), hour(H), year(Y), findall(cdh(C,D,H), courseYear(C,Y), Lits), atMost(Lits,1),fail.
+coursesOverlap.
+
+% Exactly 1 Valid Room per each Course comprovar si fa falta lo de treure les unavailable
+exactly1ValidRoomPerCourse:- course(C), courseRooms(C,LR), findall(cr(C,R),member(R,LR), Lits), exactly(1,Lits),fail.
+exactly1ValidRoomPerCourse:- course(C), courseRooms(C,LR), room(R), \+member(R,LR),  writeClause([-cr(C,R)]),fail. 
+exactly1ValidRoomPerCourse.
+
+% Exactly 1 Valid Professor per each Course comprovar si fa falta lo de treure les unavailable
+exactly1ValidProfessorPerCourse:- course(C), courseProfessors(C,PR), findall(cp(C,P), member(P,PR), Lits), exactly(1,Lits), fail.
+exactly1ValidProfessorPerCourse:- course(C), courseProfessors(C,PR), professor(P), \+member(P,PR), writeClause([-cp(C,P)]),fail. 
+exactly1ValidProfessorPerCourse.
+
+% Here I am checking that every available professor that does the subject is chosen
+eachCourseHasAvailableProfessors:- course(C), courseProfessors(C,PS), member(P,PS), writeClause([-cp(C,P), p(P)]), fail.
+eachCourseHasAvailableProfessors.
+
+% Here I am checking if every chosen professor that does the subject is actually an available professor for the subject
+eachProfessorAvailableCourses:- professor(P), findall(cp(C,P), (courseProfessors(C,PS), member(P,PS)), L), writeClause([-p(P) | L]), fail. 
+eachProfessorAvailableCourses.	
+
+
+% EACH PROFESSOR CAN HAVE AT MOST 1 COURSE DAY HOUR 
+atMostOneProfessorPerDayHour:- professor(P), day(D), hour(H), findall(cdhp(C,D,H,P), course(C), Lits), atMost(1,Lits), fail.
+atMostOneProfessorPerDayHour.
+
+
+% EACH COURSE HAS TO DO ITS HOURS, NOTE: EACH COURSE CAN DO AT MOST ONE HOUR PER DAY 	
+exactlyCourseHours:- course(C), findall(cd(C,D), day(D), Lits), courseHours(C,H1), exactly(H1,Lits),fail.
+exactlyCourseHours.
+
+
+% THIS ONES ARE OBVIOUS, TRYING TO KEEP CONSISTENCE BETWEEN CR, CDH, CDHR
+crANDcdhTOcdhr:- course(C), courseRooms(C,Rs), member(R,Rs),  hour(H), day(D),  writeClause([-cr(C,D,R), -cdh(C,D,H),  cdhr(C,D,H,R) ]), fail.
+cdrANDcdhTOcdhr.
+
+cdhrTOcrANDcdh:- course(C), hour(H), day(D), courseRooms(C,RS), member(R,RS), writeClause([-cdhr(C,D,H,R), cdh(C,D,H,R)]), writeClause([-cdhr(C,D,H,R),cr(C,R)]), fail.
+cdhrANDcrTOcdh.
+
+% THE ONE THAT GIVES US THE MAXIMUM RESTRICTION OF HAVING THE BEST ALREADY ARCHIEVED 
+maxNumProfs(MaxNumProf):- findall(p(P), professor(P), Lits), atMost(MaxNumProf,Lits), fail.
+maxNumProfs(_).	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 3. This predicate displays a given solution M:
@@ -144,8 +218,7 @@ displaySol(_):- nl,!.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 4. This predicate computes the cost of a given solution M:
-
-costOfThisSolution(M,Cost):- Cost = 0.
+costOfThisSolution(M,Cost):- findall(P,member(cp(_,P),M),L), sort(L,Ps), length(Ps,Cost), !.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

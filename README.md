@@ -36,13 +36,13 @@ swipl
 - Events
 - Teams
 
-## [Lab4: Optimization with SAT and Prolog]((https://github.com/adriacabeza/LI/tree/master/Lab4)
+## [Lab4: Optimization with SAT and Prolog](https://github.com/adriacabeza/LI/tree/master/Lab4)
 - Teams 
 - MinColoring
 - Horaris
 
 
-## [Lab5 : Advanced Prolog]((https://github.com/adriacabeza/LI/tree/master/PrologAvanzado)
+## [Lab5 : Advanced Prolog](https://github.com/adriacabeza/LI/tree/master/PrologAvanzado)
 - TSP
 - Tomografia
 - Squares

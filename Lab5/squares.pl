@@ -9,7 +9,7 @@ ejemplo(4,112,[50,42,37,35,33,29,27,25,24,19,18,17,16,15,11,9,8,7,6,4,2]).
 ejemplo(5,175,[81,64,56,55,51,43,39,38,35,33,31,30,29,20,18,16,14,9,8,5,4,3,2,1]).
 
 main:- 
-	ejemplo(5,Big,Sides),
+	ejemplo(0,Big,Sides),
 	nl, write('Fitting all squares of size '), write(Sides), write(' into big square of size '), write(Big), nl,nl,
 	length(Sides,N), 
 	length(RowVars,N), % get list of N prolog vars: Row coordinates of each small square
@@ -34,15 +34,30 @@ writeSide(S):- S<10, write('  '),write(S),!.
 writeSide(S):-       write(' ' ),write(S),!.
 
 
+% CHECK BIG LIMITS 
+insideBigSquare(0,_,[],[]).
+insideBigSquare(N, Big,[X|Sides],[V|Vars]):-
+       		Max is Big - X + 1,
+		V in 1..Max,
+		N2 is N - 1,
+	       	insideBigSquare(N2, Big, Sides, Vars).
 
-insideBigSquare(_,_,[],[]).
-insideBigSquare(_, Big,[X|Sides],[V|Vars]):- Max is Big -X+1, V in 1..Max, insideBigSquare(_, Big, Sides, Vars).
-
-
+% CHOOSE ONE SQUARE
 nonoverlapping(_,[],[],[]).
-nonoverlapping(_,[X|Sides],[R|RowVars],[C|ColVars]):- nonoverlapping2(X, Sides,R,RowVars,C,ColVars), nonoverlapping(_,Sides,RowVars,ColVars).
+nonoverlapping(_,[X|Sides],[R|RowVars],[C|ColVars]):- 
+	nonoverlapping2(X, Sides,R,RowVars,C,ColVars), 
+	nonoverlapping(_,Sides,RowVars,ColVars).
 
+
+% TAKE THE CHOSEN SQUARE AND CHECK IF OVERLAPS TO ANOTHER ONE
 nonoverlapping2(_,[],_,[],_,[]).
-nonoverlapping2(X,[X2|Sides],R,[R2|RowVars],C,[C2|ColVars]):-nonoverlapping3(X,X2,R,C,R2,C2), nonoverlapping2(X,Sides,R,RowVars,C,ColVars). 
+nonoverlapping2(X,[X2|Sides],R,[R2|RowVars],C,[C2|ColVars]):-
+	nonoverlapping3(X,X2,R,C,R2,C2), 
+	nonoverlapping2(X,Sides,R,RowVars,C,ColVars). 
 
-nonoverlapping3(X,X2,R,C,R2,C2):- X+R #=< R2, X+C #=< C2, X2+R2 #=< R, X2+C2 #=< C.
+% CHECK OVERLAPPING
+nonoverlapping3(X,X2,R,C,R2,C2):- 
+	X+R #=< R2; 
+	X+C #=< C2; 
+	X2+R2 #=< R;
+       	X2+C2 #=< C.
