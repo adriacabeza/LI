@@ -106,7 +106,7 @@ writeClauses(MaxNumProf):-
 	exactly1ValidProfessorPerCourse,
 	cdrANDcdhTOcdhr,
 	cdhrANDcrTOcdh,	
-	atMostOneProfessorPerDayHour,
+	eachProfessorAtMostOneHouratONCE,
 	eachProfessorAvailableCourses,
 	eachCourseHasAvailableProfessors,
 	eachCourseatMostOneHourPerDay,
@@ -114,6 +114,8 @@ writeClauses(MaxNumProf):-
 	cdimpliescdh,
 	exactlyCourseHours,
 	coursesOverlap,
+	cdhp2cdhANDcp,
+	cdhANDcp2CDHP,
 	maxNumProfs(MaxNumProf),
 	true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
@@ -132,8 +134,17 @@ cdhimpliescd.
 cdimpliescdh:- course(C), day(D), findall(cdh(C,D,H), hour(H), L), writeClause([-cd(C,D) | L]),fail.
 cdimpliescdh.
 
+% CDH AND CP -> CDHP V CDHP2 V CDHP3...
+cdhANDcp2CDHP:- course(C), day(D), professor(P), findall(cdhp(C,D,H,P), hour(H),L), writeClause([-cdh(C,D,H), -cp(C,P) | L]), fail.
+cdhANDcp2CDHP.
+
+
+% CDHP -> CDH AND CP
+cdhp2cdhANDcp:- course(C), day(D), hour(H), professor(P), writeClause([-cdhp(C,D,H,P), cdh(C,D,H)]), writeClause([-cdhp(C,D,H,P), cp(C,P)]), fail.
+cdhp2cdhANDcp. 
+
 % Courses of the same year cannot have overlap
-coursesOverlap:- day(D), hour(H), year(Y), findall(cdh(C,D,H), courseYear(C,Y), Lits), atMost(Lits,1),fail.
+coursesOverlap:- day(D), hour(H), year(Y), findall(cdh(C,D,H), courseYear(C,Y), Lits), atMost(1,Lits),fail.
 coursesOverlap.
 
 % Exactly 1 Valid Room per each Course comprovar si fa falta lo de treure les unavailable
@@ -155,10 +166,9 @@ eachProfessorAvailableCourses:- professor(P), findall(cp(C,P), (courseProfessors
 eachProfessorAvailableCourses.	
 
 
-% EACH PROFESSOR CAN HAVE AT MOST 1 COURSE DAY HOUR 
-atMostOneProfessorPerDayHour:- professor(P), day(D), hour(H), findall(cdhp(C,D,H,P), course(C), Lits), atMost(1,Lits), fail.
-atMostOneProfessorPerDayHour.
-
+% EACH PROFESSOR CAN HAVE AT MOST 1 COURSE AT THE SAME TIME 
+eachProfessorAtMostOneHouratONCE:- professor(P), day(D), hour(H), findall(cdhp(C,D,H,P), course(C), Lits), atMost(1,Lits), fail.
+eachProfessorAtMostOneHouratONCE.
 
 % EACH COURSE HAS TO DO ITS HOURS, NOTE: EACH COURSE CAN DO AT MOST ONE HOUR PER DAY 	
 exactlyCourseHours:- course(C), findall(cd(C,D), day(D), Lits), courseHours(C,H1), exactly(H1,Lits),fail.
@@ -175,6 +185,8 @@ cdhrANDcrTOcdh.
 % THE ONE THAT GIVES US THE MAXIMUM RESTRICTION OF HAVING THE BEST ALREADY ARCHIEVED 
 maxNumProfs(MaxNumProf):- findall(p(P), professor(P), Lits), atMost(MaxNumProf,Lits), fail.
 maxNumProfs(_).	
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 3. This predicate displays a given solution M:
