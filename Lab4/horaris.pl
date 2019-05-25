@@ -105,22 +105,24 @@ writeClauses(MaxNumProf):-
 	exactly1ValidRoomPerCourse,
 	exactly1ValidProfessorPerCourse,
 	crANDcdhTOcdhr,
-	cdhrANDcrTOcdh,	
+	cdhrTOcrANDcdh,	
 	eachProfessorAtMostOneHouratONCE,
-	eachProfessorAvailableCourses,
-	eachCourseHasAvailableProfessors,
 	eachCourseatMostOneHourPerDay,
 	cdhimpliescd,
+	p2cp,
+	cp2p,
 	cdimpliescdh,
 	exactlyCourseHours,
 	coursesOverlap,
 	cdhp2cdhANDcp,
 	cdhANDcp2CDHP,
+	atMost1CoursePerDHR,
 	maxNumProfs(MaxNumProf),
 	true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
-
+atMost1CoursePerDHR:- hour(H), room(R), day(D), findall(cdhr(C,D,H,R), course(C), Lits), atMost(1,Lits), fail.
+atMost1CoursePerDHR.
 
 %eachCourseatMostOneHourPerDay
 eachCourseatMostOneHourPerDay:- course(C), day(D), findall(cdh(C,D,H), hour(H), Lits), atMost(1,Lits),fail.
@@ -135,12 +137,12 @@ cdimpliescdh:- course(C), day(D), findall(cdh(C,D,H), hour(H), L), writeClause([
 cdimpliescdh.
 
 % CDH AND CP -> CDHP V CDHP2 V CDHP3...
-cdhANDcp2CDHP:- course(C), day(D), professor(P), courseProfessors(C,PS), member(P,PS), findall(cdhp(C,D,H,P), hour(H),L), writeClause([-cdh(C,D,H), -cp(C,P) | L]), fail.
+cdhANDcp2CDHP:- course(C), day(D), professor(P), courseProfessors(C,PS), member(P,PS), writeClause([-cdh(C,D,H), -cp(C,P), cdhp(C,D,H,P)]), fail.
 cdhANDcp2CDHP.
 
 
 % CDHP -> CDH AND CP
-cdhp2cdhANDcp:- course(C), day(D), hour(H), professor(P), courseProfessors(C,PS), member(P,PS), writeClause([-cdhp(C,D,H,P), cdh(C,D,H)]), writeClause([-cdhp(C,D,H,P), cp(C,P)]), fail.
+cdhp2cdhANDcp:- course(C), day(D), hour(H), courseProfessors(C,PS), member(P,PS), writeClause([-cdhp(C,D,H,P), cdh(C,D,H)]), writeClause([-cdhp(C,D,H,P), cp(C,P)]), fail.
 cdhp2cdhANDcp. 
 
 % Courses of the same year cannot have overlap
@@ -157,14 +159,6 @@ exactly1ValidProfessorPerCourse:- course(C), courseProfessors(C,PR), findall(cp(
 exactly1ValidProfessorPerCourse:- course(C), courseProfessors(C,PR), professor(P), \+member(P,PR), writeClause([-cp(C,P)]),fail. 
 exactly1ValidProfessorPerCourse.
 
-% Here I am checking that every available professor that does the subject is chosen
-eachCourseHasAvailableProfessors:- course(C), courseProfessors(C,PS), member(P,PS), writeClause([-cp(C,P), p(P)]), fail.
-eachCourseHasAvailableProfessors.
-
-% Here I am checking if every chosen professor that does the subject is actually an available professor for the subject
-eachProfessorAvailableCourses:- professor(P), findall(cp(C,P), (courseProfessors(C,PS), member(P,PS)), L), writeClause([-p(P) | L]), fail. 
-eachProfessorAvailableCourses.	
-
 
 % EACH PROFESSOR CAN HAVE AT MOST 1 COURSE AT THE SAME TIME 
 eachProfessorAtMostOneHouratONCE:- professor(P), day(D), hour(H), findall(cdhp(C,D,H,P), course(C), Lits), atMost(1,Lits), fail.
@@ -176,18 +170,21 @@ exactlyCourseHours.
 
 
 % THIS ONES ARE OBVIOUS, TRYING TO KEEP CONSISTENCE BETWEEN CR, CDH, CDHR
-crANDcdhTOcdhr:- course(C), courseRooms(C,Rs), member(R,Rs),  hour(H), day(D),  writeClause([-cr(C,D,R), -cdh(C,D,H),  cdhr(C,D,H,R) ]), fail.
+crANDcdhTOcdhr:- course(C), courseRooms(C,Rs), member(R,Rs),  hour(H), day(D),  writeClause([-cr(C,R), -cdh(C,D,H),  cdhr(C,D,H,R) ]), fail.
 crANDcdhTOcdhr.
 
-cdhrTOcrANDcdh:- course(C), hour(H), day(D), courseRooms(C,RS), member(R,RS), writeClause([-cdhr(C,D,H,R), cdh(C,D,H,R)]), writeClause([-cdhr(C,D,H,R),cr(C,R)]), fail.
-cdhrANDcrTOcdh.
+cdhrTOcrANDcdh:- course(C), hour(H), day(D), courseRooms(C,RS), member(R,RS), writeClause([-cdhr(C,D,H,R), cdh(C,D,H)]), writeClause([-cdhr(C,D,H,R),cr(C,R)]), fail.
+cdhrTOcrANDcdh.
 
 % THE ONE THAT GIVES US THE MAXIMUM RESTRICTION OF HAVING THE BEST ALREADY ARCHIEVED 
 maxNumProfs(MaxNumProf):- findall(p(P), professor(P), Lits), atMost(MaxNumProf,Lits), fail.
 maxNumProfs(_).	
 
 
-
+p2cp:-professor(P),  findall(cp(C,P),(courseProfessors(C,PS),member(P,PS)), L) , writeClause([-p(P)|L])  ,fail. 
+p2cp.
+cp2p:- course(C), courseProfessors(C,PS),member(P,PS), writeClause([-cp(C,P), p(P)]) ,fail.
+cp2p.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 3. This predicate displays a given solution M:
 
