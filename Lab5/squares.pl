@@ -9,7 +9,7 @@ ejemplo(4,112,[50,42,37,35,33,29,27,25,24,19,18,17,16,15,11,9,8,7,6,4,2]).
 ejemplo(5,175,[81,64,56,55,51,43,39,38,35,33,31,30,29,20,18,16,14,9,8,5,4,3,2,1]).
 
 main:- 
-	ejemplo(0,Big,Sides),
+	ejemplo(3,Big,Sides),
 	nl, write('Fitting all squares of size '), write(Sides), write(' into big square of size '), write(Big), nl,nl,
 	length(Sides,N), 
 	length(RowVars,N), % get list of N prolog vars: Row coordinates of each small square
@@ -17,8 +17,8 @@ main:-
 	insideBigSquare(N,Big,Sides,RowVars),
 	insideBigSquare(N,Big,Sides,ColVars),
 	nonoverlapping(N,Sides,RowVars,ColVars),
-	label(RowVars),
-	label(ColVars),
+	append(RowVars,ColVars,Vars),
+	labeling([ff],Vars),
 	displaySol(N,Sides,RowVars,ColVars), halt.
 
 
@@ -57,7 +57,9 @@ nonoverlapping2(X,[X2|Sides],R,[R2|RowVars],C,[C2|ColVars]):-
 
 % CHECK OVERLAPPING
 nonoverlapping3(X,X2,R,C,R2,C2):- 
-	X+R #=< R2; 
-	X+C #=< C2; 
-	X2+R2 #=< R;
+	X+R #=< R2 #\/
+	X+C #=< C2 #\/
+	X2+R2 #=< R #\/
        	X2+C2 #=< C.
+
+

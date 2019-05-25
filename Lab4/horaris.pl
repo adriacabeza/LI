@@ -104,7 +104,7 @@ writeClauses(infinite):- !, N = 1000, writeClauses(N),!. % N = 1000 should be re
 writeClauses(MaxNumProf):-
 	exactly1ValidRoomPerCourse,
 	exactly1ValidProfessorPerCourse,
-	cdrANDcdhTOcdhr,
+	crANDcdhTOcdhr,
 	cdhrANDcrTOcdh,	
 	eachProfessorAtMostOneHouratONCE,
 	eachProfessorAvailableCourses,
@@ -135,12 +135,12 @@ cdimpliescdh:- course(C), day(D), findall(cdh(C,D,H), hour(H), L), writeClause([
 cdimpliescdh.
 
 % CDH AND CP -> CDHP V CDHP2 V CDHP3...
-cdhANDcp2CDHP:- course(C), day(D), professor(P), findall(cdhp(C,D,H,P), hour(H),L), writeClause([-cdh(C,D,H), -cp(C,P) | L]), fail.
+cdhANDcp2CDHP:- course(C), day(D), professor(P), courseProfessors(C,PS), member(P,PS), findall(cdhp(C,D,H,P), hour(H),L), writeClause([-cdh(C,D,H), -cp(C,P) | L]), fail.
 cdhANDcp2CDHP.
 
 
 % CDHP -> CDH AND CP
-cdhp2cdhANDcp:- course(C), day(D), hour(H), professor(P), writeClause([-cdhp(C,D,H,P), cdh(C,D,H)]), writeClause([-cdhp(C,D,H,P), cp(C,P)]), fail.
+cdhp2cdhANDcp:- course(C), day(D), hour(H), professor(P), courseProfessors(C,PS), member(P,PS), writeClause([-cdhp(C,D,H,P), cdh(C,D,H)]), writeClause([-cdhp(C,D,H,P), cp(C,P)]), fail.
 cdhp2cdhANDcp. 
 
 % Courses of the same year cannot have overlap
@@ -177,7 +177,7 @@ exactlyCourseHours.
 
 % THIS ONES ARE OBVIOUS, TRYING TO KEEP CONSISTENCE BETWEEN CR, CDH, CDHR
 crANDcdhTOcdhr:- course(C), courseRooms(C,Rs), member(R,Rs),  hour(H), day(D),  writeClause([-cr(C,D,R), -cdh(C,D,H),  cdhr(C,D,H,R) ]), fail.
-cdrANDcdhTOcdhr.
+crANDcdhTOcdhr.
 
 cdhrTOcrANDcdh:- course(C), hour(H), day(D), courseRooms(C,RS), member(R,RS), writeClause([-cdhr(C,D,H,R), cdh(C,D,H,R)]), writeClause([-cdhr(C,D,H,R),cr(C,R)]), fail.
 cdhrANDcrTOcdh.
