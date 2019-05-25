@@ -122,6 +122,30 @@ writeClauses(MaxNumProf):-
     true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
+
+atMost1CoursePerDHR:- room(R), day(D), hour(H), findall(cdhr(C, D, H, R), course(C), Lits), atMost(1, Lits), fail.
+atMost1CoursePerDHR.
+
+
+atMost1CourseLecturePerDay:- course(C), day(D), findall(cdh(C, D, H), hour(H), Lits), atMost(1, Lits), fail.
+atMost1CourseLecturePerDay.
+
+
+% any CDH => CD
+cdh2cd:- course(C), day(D), hour(H), writeClause([-cdh(C,D,H), cd(C,D)]), fail.
+cdh2cd.
+
+% CD => CD1 v CD2 v ... v CD12
+cd2cdh:- course(C), day(D), findall(cdh(C, D, H), hour(H), L), writeClause([-cd(C,D) | L]), fail.
+cd2cdh.
+
+cpAndcdh2cdhp:- course(C), courseProfessors(C, Ps), member(P, Ps), day(D), hour(H), writeClause([-cp(C, P), -cdh(C, D, H), cdhp(C, D, H, P)]), fail.
+cpAndcdh2cdhp.
+
+cdhp2cpAndcdh:- course(C), professor(P), courseProfessors(C, Ps), member(P, Ps), day(D), hour(H), writeClause([-cdhp(C, D, H, P), cp(C, P)]), writeClause([-cdhp(C, D, H, P), cdh(C, D, H)]), fail.
+cdhp2cpAndcdh.
+
+
 %exactly 1 of the possible rooms is assigned
 exactly1ValidRoomPerCourse:- course(C), courseRooms(C, LR), findall(cr(C,R), member(R, LR), Lits), exactly(1, Lits), fail.
 %forcing the unavailable rooms to not be assigned.
@@ -134,16 +158,7 @@ exactly1ValidProfessorPerCourse:- course(C), courseProfessors(C, LP), findall(cp
 exactly1ValidProfessorPerCourse:- course(C), courseProfessors(C, LP), professor(P), \+member(P, LP), writeClause([-cp(C, P)]), fail.
 exactly1ValidProfessorPerCourse.
 
-atMost1CourseLecturePerDay:- course(C), day(D), findall(cdh(C, D, H), hour(H), Lits), atMost(1, Lits), fail.
-atMost1CourseLecturePerDay.
 
-% any CDH => CD
-cdh2cd:- course(C), day(D), hour(H), writeClause([-cdh(C,D,H), cd(C,D)]), fail.
-cdh2cd.
-
-% CD => CD1 v CD2 v ... v CD12
-cd2cdh:- course(C), day(D), findall(cdh(C, D, H), hour(H), L), writeClause([-cd(C,D) | L]), fail.
-cd2cdh.
 
 exactlyNumLectures:- course(C), courseHours(C, Hs), findall(cd(C, D), day(D), Lits), exactly(Hs, Lits), fail.
 exactlyNumLectures.
@@ -154,16 +169,6 @@ crAndcdh2cdhr.
 
 cdhr2crAndcdh:- course(C), courseRooms(C, Rs), member(R, Rs), day(D), hour(H), writeClause([-cdhr(C, D, H, R), cr(C, R)]), writeClause([-cdhr(C, D, H, R), cdh(C, D, H)]), fail.
 cdhr2crAndcdh.
-
-atMost1CoursePerDHR:- room(R), day(D), hour(H), findall(cdhr(C, D, H, R), course(C), Lits), atMost(1, Lits), fail.
-atMost1CoursePerDHR.
-
-%
-cpAndcdh2cdhp:- course(C), courseProfessors(C, Ps), member(P, Ps), day(D), hour(H), writeClause([-cp(C, P), -cdh(C, D, H), cdhp(C, D, H, P)]), fail.
-cpAndcdh2cdhp.
-
-cdhp2cpAndcdh:- course(C), courseProfessors(C, Ps), member(P, Ps), day(D), hour(H), writeClause([-cdhp(C, D, H, P), cp(C, P)]), writeClause([-cdhp(C, D, H, P), cdh(C, D, H)]), fail.
-cdhp2cpAndcdh.
 
 atMost1ProfessorPerDH:- professor(P), day(D), hour(H), findall(cdhp(C, D, H, P), course(C), Lits), atMost(1, Lits), fail.
 atMost1ProfessorPerDH.
