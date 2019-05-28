@@ -36,7 +36,7 @@ p:-	ejemplo1(RowSums,ColSums),
 	length(L,NVars),  % generate a list of Prolog vars (their names do not matter)
 	L ins 0..1, % Laca diu que ins es el domini
 	matrixByRows(L,NumCols,MatrixByRows),
-    transpose(MatrixByRows, MatrixByCols),
+	transpose(MatrixByRows, MatrixByCols),
 	checkSumMax(MatrixByCols,ColSums),
 	checkSumMax(MatrixByRows,RowSums),
 	label(L),
