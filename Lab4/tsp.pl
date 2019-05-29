@@ -46,13 +46,7 @@ lowerbound([X|Cities],ResultAux, ResultAux):- row(X,Row), list_min(Row,Minimum),
 %It gets the nearest city using Distances
 getNearest(Others,Distances,NearestCity):-  list_min(Distances,Min),  nth1(I,Distances,Min), nth1(I,Others, NearestCity).
 
-%AUX
-mi_select1(City,Cities,L):-
-    select(City,Cities,Others),
-    mi_select(City,Others,L).
-
-
-%AFEGIR AIXO SI AL MI_SELECT VOLS VEURE COMENTARIS
+%VERSIO SELECT AMB  COMENTARIS
 %It returns the nearest city
 %mi_select(_,[],[]).
 %mi_select(City,Cities, [NearestCity|L]):-
@@ -62,6 +56,12 @@ mi_select1(City,Cities,L):-
     %write(Distances),
     %getNearest(Cities, Distances, NearestCity),
     %select(NearestCity,Cities,YOLO), write('Estas son las que me quedan por ordenar:'), write(YOLO), nl,nl, mi_select(City,YOLO,L).  
+
+%AUX
+mi_select1(City,Cities,L):-
+    select(City,Cities,Others),
+    mi_select(City,Others,L).
+
 
 mi_select(_,[],[]).
 mi_select(City,Cities, [NearestCity|L]):-

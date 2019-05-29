@@ -104,19 +104,19 @@ writeClauses(infinite):- !, N = 1000, writeClauses(N),!. % N = 1000 should be re
 writeClauses(MaxNumProf):-
 	exactly1ValidRoomPerCourse,
 	exactly1ValidProfessorPerCourse,
-	crANDcdhTOcdhr,
-	cdhrTOcrANDcdh,	
-	eachProfessorAtMostOneHouratONCE,
 	eachCourseatMostOneHourPerDay,
 	cdhimpliescd,
-	p2cp,
-	cp2p,
 	cdimpliescdh,
 	exactlyCourseHours,
-	coursesOverlap,
-	cdhp2cdhANDcp,
-	cdhANDcp2CDHP,
+	crANDcdhTOcdhr,
+	cdhrTOcrANDcdh,	
 	atMost1CoursePerDHR,
+	cdhANDcp2CDHP,
+	cdhp2cdhANDcp,
+	eachProfessorAtMostOneHouratONCE,
+	coursesOverlap,
+	p2cp,
+	cp2p,
 	maxNumProfs(MaxNumProf),
 	true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
@@ -137,7 +137,7 @@ cdimpliescdh:- course(C), day(D), findall(cdh(C,D,H), hour(H), L), writeClause([
 cdimpliescdh.
 
 % CDH AND CP -> CDHP V CDHP2 V CDHP3...
-cdhANDcp2CDHP:- course(C), day(D), professor(P), courseProfessors(C,PS), member(P,PS), writeClause([-cdh(C,D,H), -cp(C,P), cdhp(C,D,H,P)]), fail.
+cdhANDcp2CDHP:- course(C), day(D), professor(P), courseProfessors(C,PS), member(P,PS),hour(H), writeClause([-cdh(C,D,H), -cp(C,P), cdhp(C,D,H,P)]), fail.
 cdhANDcp2CDHP.
 
 
