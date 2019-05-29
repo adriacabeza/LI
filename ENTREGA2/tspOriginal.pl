@@ -2,66 +2,22 @@
 % shortest route in order to visit all 22 (or the first N) cities starting from
 % city 1 (it does not matter in what city the trip ends).
 
-
-nearestCityWithDistance(CurrC,[C],C,D):- distance(CurrC,C,D).
-nearestCityWithDistance(CurrC,[C|Cities],C,D):- nearestCityWithDistance(CurrC,Cities,_,D1), distance(CurrC,C,D), D < D1.  % caso donde C es la mejor
-nearestCityWithDistance(CurrC,[_|Cities],C,D):- nearestCityWithDistance(CurrC,Cities,C,D ).
-
-
-orderCitiesbyDistance(CurrC, Cities,Cities1):- 
-    findall( [D,C], (member(C,Cities),distance(CurrC,C,D)), L ),  % L es la lista [[Dist1,C1],...,[Distn,Cn]],
-    sort(L,L1),                                                   %L1 es ls misma lista de pares, pero ordenada de menor a mayor distancia
-    findall( C, member([_,C], L1), Cities1 ),!.                   %Cities1 es la lista de las segundas componentes de los pares de L1
-    
-cotaInferior([],0).
-cotaInferior([C|Cities],Km):- cotaInferior(Cities,Km1), mindist(C,D), Km is Km1+D,!.
-   
-
-main:- N=22, retractall(bestRouteSoFar(_,_)),  assertz(bestRouteSoFar(100000,[])),  % "infinite" distance
+main:- N=11, retractall(bestRouteSoFar(_,_)),  assertz(bestRouteSoFar(100000,[])),  % "infinite" distance
        findall(I,between(2,N,I),Cities), tsp( Cities, 0, [1] ).
 main:- bestRouteSoFar(Km,ReverseRoute), reverse( ReverseRoute, Route ), nl,
        write('Optimal route: '), write(Route), write('. '), write(Km), write(' km.'), nl, nl, halt.
 
 % tsp( Cities, AccumulatedKm, RouteSoFar )
 tsp( [], AccumulatedKm, RouteSoFar ):- storeRouteIfBetter(AccumulatedKm,RouteSoFar), fail.
-
-%De moment no fa re
-%%%%tsp( _, AccumulatedKm,_  ):- bestRouteSoFar(Km,_), AccumulatedKm >= Km, !, fail.
-tsp( Cities, AccumulatedKm, _):- cotaInferior(Cities,CI), bestRouteSoFar(Km,_), AccumulatedKm + CI >= Km, !, fail.
+tsp(  _, AccumulatedKm, _          ):- bestRouteSoFar(Km,_), AccumulatedKm >= Km, !, fail.
 tsp( Cities, AccumulatedKm, [ CurrentCity | RouteSoFar ] ):-
-    orderCitiesbyDistance(CurrentCity,Cities,Cities1),
-    select(City, Cities1, RemainingCities),
-    distance( CurrentCity,City,Km),
-    AccumulatedKm1 is AccumulatedKm+Km,
+    select( City, Cities, RemainingCities ),  % select next city to visit
+    distance( CurrentCity, City, Km ),  AccumulatedKm1 is AccumulatedKm+Km,
     tsp( RemainingCities, AccumulatedKm1, [ City, CurrentCity | RouteSoFar ] ).
 
 storeRouteIfBetter( Km, Route ):-  bestRouteSoFar( BestKm, _ ), Km < BestKm,
     write('Improved solution. New best distance is '), write(Km), write(' km.'),nl,
     retractall(bestRouteSoFar(_,_)), assertz(bestRouteSoFar(Km,Route)),!.
-    
-mindist(1,20).
-mindist(2,18).
-mindist(3,42).
-mindist(4,40).
-mindist(5,17).
-mindist(6,38).
-mindist(7,26).
-mindist(8,47).
-mindist(9,17).
-mindist(10,33).
-mindist(11,19).
-mindist(12,17).
-mindist(13,17).
-mindist(14,35).
-mindist(15,28).
-mindist(16,34).
-mindist(17,28).
-mindist(18,35).
-mindist(19,28).
-mindist(20,20).
-mindist(21,19).
-mindist(22,20).
-
 
 %  Number of points N is   22
 distance(A,B,Km):-
