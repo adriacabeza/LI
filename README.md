@@ -42,7 +42,7 @@ swipl
 - Horaris
 
 
-## [Lab5 : Advanced Prolog](https://github.com/adriacabeza/LI/tree/master/PrologAvanzado)
+## [Lab5 : Advanced Prolog](https://github.com/adriacabeza/LI/tree/master/Lab5)
 - TSP
 - Tomografia
 - Squares
