@@ -17,7 +17,7 @@ cotaInferior([],0).
 cotaInferior([C|Cities],Km):- cotaInferior(Cities,Km1), mindist(C,D), Km is Km1+D,!.
    
 
-main:- N=22, retractall(bestRouteSoFar(_,_)),  assertz(bestRouteSoFar(100000,[])),  % "infinite" distance
+main:- N=10, retractall(bestRouteSoFar(_,_)),  assertz(bestRouteSoFar(100000,[])),  % "infinite" distance
        findall(I,between(2,N,I),Cities), tsp( Cities, 0, [1] ).
 main:- bestRouteSoFar(Km,ReverseRoute), reverse( ReverseRoute, Route ), nl,
        write('Optimal route: '), write(Route), write('. '), write(Km), write(' km.'), nl, nl, halt.
