@@ -8,18 +8,7 @@
 %   weight: 1   2   3   5   6   7
 %   value:  1   4   7   11  14  15
 
-main:-
-    W = [1,2,3,5,6,7],
-    V = [1,4,7,11,14,15],
-    length(Vars,6),
-    Vars ins 0..80,
-    producte(W,Vars,Pes),
-    producte(V,Vars,Suma),
-    Pes #=< 80,
-    %scalar_product(W,Vars,#=<, 80),
-    %scalar_product(V,Vars,#=, Suma),
-    labeling([max(Suma)], Vars),
-    write(Vars).
-    
-producte([W|Weights],[V|Vars], Sum + W*V):- producte(Weights,Vars,Sum).
-producte([W],[V],V*W).
+china:- L = [A,B,C,D,E,F],
+L ins 0 .. 80, 1*A + 2*B + 3*C + 5*D + 6*E + 7*F #=< 80,
+labeling( [ max( 1*A + 4*B + 7*C + 11*D + 14*E + 15*F ) ], L ), write(L), nl,!.
+

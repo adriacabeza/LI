@@ -1,0 +1,178 @@
+:- use_module(library(clpfd)).
+
+% Now you are flying back from China, and you should write such a program to compute how many
+% units of each one of six products you should take in your suitcase with capacity 80Kg, if you want
+% to maximize the total value, and the products have the following weights (Kg) and values (Euros):
+%           p1  p2  p3  p4  p5  p6
+%   ------------------------------
+%   weight: 1   2   3   5   6   7
+%   value:  1   4   7   11  14  15
+
+china:- L = [A,B,C,D,E,F],
+L ins 0 .. 80, 1*A + 2*B + 3*C + 5*D + 6*E + 7*F #=< 80,
+labeling( [ max( 1*A + 4*B + 7*C + 11*D + 14*E + 15*F ) ], L ), write(L), nl,!.
+
+--------------------------------------------------------------------------------------
+
+Consider an n × n chessboard (for any natural number n > 3, not necessarily 8), where n is defined by a Prolog clause boardSize(n). (for example, boardSize(14) if if n = 14). Define a Prolog predicate horse(I1,J1,I2,J2) that writes the shortest possible sequence of positions that a horse of chess traverses to go from initial position I1,J1 to final position I2,J2 on the board (positions are (row,column), each one in 1..n). It must write the sequence in the right order, the first position being [I1,J1], and write “no solution” if no such a sequence exists.
+
+horse(I1,J1,I2,J2):-
+    boardSize(N), NumSquares is N*N,
+    between(0,NumSquares,K),
+    path( [I1,J1], [I2,J2], [[I1,J1]], Path ),
+    length(Path,K),
+    reverse(Path,Path1),
+    write(Path1).
+horse(_,_,_,_):- write(’no solution’).
+
+path( E,E, C,C ).
+path( CurrentState, FinalState, PathSoFar, TotalPath ):-
+    oneStep( CurrentState, NextState ),
+    \+member(NextState,PathSoFar),
+    path( NextState, FinalState, [NextState|PathSoFar], TotalPath ).
+
+
+reverse([],[]).
+reverse([X|L],L1):- reverse(L,L2), append(L2,[X],L1),!.
+
+
+exists(I,J):- boardSize(N), between(1,N,I), between(1,N,J).
+
+oneStep( [I1,J1], [I2,J2] ):- I2 is I1+1, J2 is J1+2, exists(I2,J2).
+oneStep( [I1,J1], [I2,J2] ):- I2 is I1-1, J2 is J1+2, exists(I2,J2).
+oneStep( [I1,J1], [I2,J2] ):- I2 is I1+1, J2 is J1-2, exists(I2,J2).
+oneStep( [I1,J1], [I2,J2] ):- I2 is I1-1, J2 is J1-2, exists(I2,J2).
+oneStep( [I1,J1], [I2,J2] ):- J2 is J1+1, I2 is I1+2, exists(I2,J2).
+oneStep( [I1,J1], [I2,J2] ):- J2 is J1-1, I2 is I1+2, exists(I2,J2).
+oneStep( [I1,J1], [I2,J2] ):- J2 is J1+1, I2 is I1-2, exists(I2,J2).
+oneStep( [I1,J1], [I2,J2] ):- J2 is J1-1, I2 is I1-2, exists(I2,J2).
+
+
+--------------------------------------------------------------------------------------
+
+GRAPH COLORING PROBLEM
+
+main:- numVertices(N),edges(Edges), listOfNPrologVars(N,Vars), numColors(K),
+Vars ins 1..K,
+makeConstraints(Edges,Vars),
+label(Vars), write(Vars), nl.
+makeConstraints([],_).
+makeConstraints( [ U-V | Edges ], Vars ):-
+nth1( U, Vars, VarU ),
+nth1( V, Vars, VarV ),
+VarU #\= VarV,
+makeConstraints(Edges,Vars).
+listOfNPrologVars(0,[]):-!.
+listOfNPrologVars(N,[_|Vars]):- N1 is N-1, listOfNPrologVars(N1,Vars).
+
+
+--------------------------------------------------------------------------------------
+
+We have three dice (a die in Spanish is “dado”, and the plural of die is dice). They are fair (each
+one of their six sides has the same probability of coming up) and their sides have numbers between
+1 and 9 (not between 1 and 6!). Now suppose we play a game (many times): I pick a die; after that,
+you pick another die, we roll both dice, and the player who gets the highest number receives one Euro
+from the other player. Can you design the dice (putting the numbers on them) in such a way that you
+can become rich, that is, so that you can always pick a die that is better than mine (here better means
+that it wins with probability p > 0.5)? Write a Prolog program that checks whether this is possible
+or not. Include all non-predefined predicates you use.
+To make the problem easier, assume that die A has number A1 on two of its sides, A2 on two sides
+and A3 on two sides, and similarly, die B has B1, B2, B3 and die C has C1, C2 and C3 (each number
+on two sides), where all nine numbers A1,A2,A3, B1,B2,B3, C1,C2,C3 are different and between 1 and
+9. Also note that die A is better than die B if A wins in at least five of the nine possible outcomes
+(A1,B1),(A1,B2),...,(A3,B3), and that you have to make die A better than die B, die B better than
+C, and C better than A.
+Answer:
+
+
+p:-
+    permutation( [1,2,3,4,5,6,7,8,9], [A1,A2,A3, B1,B2,B3, C1,C2,C3] ,
+    wins( [A1,A2,A3], [B1,B2,B3] ),
+    wins( [B1,B2,B3], [C1,C2,C3] ),
+    wins( [C1,C2,C3], [A1,A2,A3] ),
+    nl, write( [A1,A2,A3]-[B1,B2,B3]-[C1,C2,C3] ), nl, halt.
+   
+wins(A,B):- findall( X-Y, (member(X,A),member(Y,B),X>Y), L ), length(L,K), K>=5.
+% this writes: [1,5,9]-[3,4,8]-[2,6,7]
+% Well-known definitions of member, length and permutation to be added.
+
+--------------------------------------------------------------------------------------
+
+% Fall 2013
+% We have three dice (a die in Spanish is “dado”, and the plural of die is dice). They are fair (each one of their six sides has the same probability of coming up) 
+% and their sides have numbers between 1 and 9 (not between 1 and 6!). Now suppose we play a game (many times): I pick a die; after that, you pick another die, 
+% we roll both dice, and the player who gets the highest number receives one Euro from the other player. Can you design the dice (putting the numbers on them) 
+% in such a way that you can become rich, that is, so that you can always pick a die that is better than mine (here better means that it wins with probability p > 0.5)? 
+% Write a Prolog program that checks whether this is possible or not. Include all non-predefined predicates you use. To make the problem easier, assume that die A 
+% has number A1 on two of its sides, A2 on two sides and A3 on two sides, and similarly, die B has B1, B2, B3 and die C has C1, C2 and C3 (each number on two sides), 
+% where all nine numbers A1,A2,A3, B1,B2,B3, C1,C2,C3 are different and between 1 and 9. Also note that die A is better than die B if A wins in at least five of the nine 
+% possible outcomes (A1,B1),(A1,B2),...,(A3,B3), and that you have to make die A better than die B, die B better than C, and C better than A.
+
+dice:- permutation([1,2,3,4,5,6,7,8,9],[A1,A2,A3,B1,B2,B3,C1,C2,C3]),
+       better([A1,A2,A3],[B1,B2,B3]),
+       better([B1,B2,B3],[C1,C2,C3]),
+       better([C1,C2,C3],[A1,A2,A3]),
+       write([A1, A2, A3] - [B1, B2, B3] - [C1, C2, C3]), nl.
+       
+better(D1,D2):-
+    findall(A-B, (member(A,D1),member(B,D2), A > B), Lits),
+    length(Lits, L),
+    L >= 5.
+    
+
+--------------------------------------------------------------------------------------
+
+% Fall 2014
+% Consider two groups of 10 people each. In the first group, as expected, the percentage of people with lung 
+% cancer among smokers is higher than among non-smokers. In the second group, the same is the case. 
+% But if we consider the 20 people of the two groups together, then the situation is the opposite: 
+% the proportion of people with lung cancer is higher among non-smokers than among smokers! 
+% Can this be true? Write a little Prolog program to find it out.
+
+num(X):- between(1,7,X).
+
+cancer:-
+    num(NFNC),
+    num(NFC),
+    num(FNC),
+    num(FC),
+    10 is NFNC + NFC + FNC + FC,
+    FC/(FC+FNC) > NFC/(NFC+NFNC),
+    num(NFNC2),
+    num(NFC2),
+    num(FNC2),
+    num(FC2),
+    10 is NFNC2 + NFC2 + FNC2 + FC2,
+    FC2/(FC2+FNC2) > NFC2/(NFC2+NFNC2),
+    (FC2+FC)/(FC2+FNC2+FC+FNC) <(NFC2+NFC)/(NFC2+NFNC2+NFC+NFNC),
+    write([FC,FNC,NFC,NFNC,FC2,FNC2,NFC2,NFNC2]).
+    
+
+
+--------------------------------------------------------------------------------------
+
+CABALLO 
+
+betweenchk(X, L, R) :- L =< X, X =< R.
+
+unPaso(N, [Px, Py], [Pxp, Pyp]) :-
+    member([SaltoX, SaltoY], [[1,2],[1,-2],[-1,2],[-1,-2],[2,1],[2,-1],[-2,1],[-2,-1]]),
+
+    Pxp is Px + SaltoX,
+    betweenchk(Pxp, 1, N),
+
+    Pyp is Py + SaltoY,
+    betweenchk(Pyp, 1, N).
+
+camino(_,_, E,E, C,C).
+camino(N, L, EstadoActual, EstadoFinal, CaminoHastaAhora, CaminoTotal) :-
+    length(CaminoHastaAhora, X), X < L,
+    unPaso(N, EstadoActual, EstSiguiente),
+    \+member(EstSiguiente, CaminoHastaAhora),
+    camino(N,L, EstSiguiente, EstadoFinal, [EstSiguiente|CaminoHastaAhora], CaminoTotal).
+
+movimientosCaballo(N, Pi, Pf, P) :-
+    L is P + 1, % El estado inicial no cuenta como paso
+    camino(N, L, Pi, Pf, [Pi], C),
+    reverse(C, I),
+    write(I).

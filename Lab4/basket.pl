@@ -89,23 +89,20 @@ writeClauses(MaxCost):-
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
 eachRoundTwoHomeTwoAwayOf1234:-
-    difTeams(S,T),
-    S>T,
     round(R),
-    findall(match(S,T,R),away(S,R), Lits2),
-    findall(match(S,T,R),away(S,R), LitsB),
-    append(Lits2,LitsB,LitsDef2),
-    member(S,[1,2,3,4]), length(LitsDef2,L), L > 0,
-    exactly(2,LitsDef2),
+    findall(home(S,R),(team(S), member(S,[1,2,3,4])), Lits2),
+    exactly(2,Lits2),
     fail.
 eachRoundTwoHomeTwoAwayOf1234.
 
+% eachRoundTwoHomeTwoAwayOf1234:-
+%     round(R),
+%     exactly(2, [home(1, R), home(2, R), home(3, R), home(4, R)]);
+% eachRoundTwoHomeTwoAwayOf1234.
 
 eachTeamAproxHalfTheRoundsHomeHalfAway:- 
-    difTeams(S,T),S>T,
-    findall(match(S,T,R),(round(R),away(S,R)),LitsC),
-    findall(match(T,S,R) ,(round(R),away(S,R)),LitsD),
-    append(LitsC,LitsD,Lits2),
+    team(S),
+    findall(home(S,R),round(R),Lits2),
     numTeams(N),
     Naux is N/2,
     Naux2 is Naux-1,
