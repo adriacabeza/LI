@@ -97,7 +97,7 @@ eachRoundTwoHomeTwoAwayOf1234.
 
 % eachRoundTwoHomeTwoAwayOf1234:-
 %     round(R),
-%     exactly(2, [home(1, R), home(2, R), home(3, R), home(4, R)]);
+%     exactly(2, [home(1, R), home(2, R), home(3, R), home(4, R)]),fail.
 % eachRoundTwoHomeTwoAwayOf1234.
 
 eachTeamAproxHalfTheRoundsHomeHalfAway:- 

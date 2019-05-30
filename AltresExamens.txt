@@ -176,3 +176,96 @@ movimientosCaballo(N, Pi, Pf, P) :-
     camino(N, L, Pi, Pf, [Pi], C),
     reverse(C, I),
     write(I).
+--------------------------------------------------------------------------------------
+
+CABALLO 2
+
+path( E,E, C,C ).
+path( CurrentState, FinalState, PathUntilNow, TotalPath ):-
+oneStep( CurrentState, NextState ),
+\+member(NextState,PathUntilNow),
+path( NextState, FinalState, [NextState|PathUntilNow], TotalPath ).
+oneStep([I1,J1],[I2,J2]):- member( [A,B], [[1,2],[2,1]] ),
+member( SignA, [1,-1] ), I2 is I1 + A*SignA,
+member( SignB, [1,-1] ), J2 is J1 + B*SignB, between(1,8,I2), between(1,8,J2).
+shortest([I1,J1],[I2,J2]):- between(1,64,N),
+path( [I1,J1], [I2,J2], [[I1,J1]], Path ), length( Path, N ), write(path), nl.
+
+
+
+--------------------------------------------------------------------------------------
+
+initialHour(10).
+finalHour(22).
+meeting( 1, [7,28,180,235], 3). % meeting 1: these four people, during 3 hours meeting( 2, [6,7,8], 2). % meeting 2: these three people, during 2 hours
+... % more clauses for meetings
+blocking(28,17). % person 28 cannot attend meetings at 17 o’clock
+... % more clauses for blockings
+numSmallRooms(8). % rooms 1-8
+numLargeRooms(5). % rooms 9-13
+solution:- findall([N,S,D], meeting(N,S,D), L), schedule(L,Sol), write(Sol), nl.
+schedule( [], [] ).
+schedule( [[N,S,D]|L], [[N,S,D,Hour,Room]|Sched] ):-
+    schedule(L,Sched),
+    initialHour(IH), finalHour(FH), FH1 is FH-D, between(IH,FH1,Hour),
+    \+blockingProblem(Hour,S,D), % no blocking problem
+    length(S,Num), room(Num,Room), % Room is a adequate for Num people
+    \+roomsOverlap(D,Hour,Room, Sched), % no room overlapping problem
+    \+attendantsOverlap(S,D,Hour, Sched). % no attendants overlapping problem
+
+
+
+room(N,R):-N<26,!,numSmallRooms(S),numLargeRooms(L), T is S+L, between(1,T,R).
+room(N,R):-N<51, numSmallRooms(S),numLargeRooms(L), T is S+L, K is S+1, between(K,T,R).
+
+blockingProblem(H,S,D):- End is H+D-1, member(J,S), blocking(J,X), between(H,End,X).
+
+attendantsOverlap(S,D,H, Sched):- member([_,S2,D2,H2,_],Sched), member(J,S),member(J,S2),
+    End is H+D-1, End2 is H2+D2-1, between(H,End,X), between(H2,End2,X).
+roomsOverlap( D,H,R, Sched):- member([_, _,D2,H2,R],Sched),
+    End is H+D-1, End2 is H2+D2-1, between(H,End,X), between(H2,End2,X).
+
+
+--------------------------------------------------------------------------------------
+
+
+buy(E,P):- nat(N), subset(P,S), length(S,N), coveredBy(E,S),
+write(’Number of packs: ’), write(N), nl, write(S), nl.
+% coveredBy(E,S): "each tool of E is in some pack of S"
+coveredBy( [], _ ).
+coveredBy( [X|L], S ):- member(P,S), member(X,P), coveredBy(L,S).
+nat(0).
+nat(N):- nat(N1), N is N1+1.
+subset( [], [] ).
+subset( [X|L], [X|S] ):- subset(L,S).
+subset( [_|L], S ):- subset(L,S).
+
+
+--------------------------------------------------------------------------------------
+subset(0,_,[]):-!.
+subset(N,[X|L],[X|S]):- N1 is N-1, subset(N,L,S).
+subset(N,[X|L], S ):- subset(N,L,S).
+listNumbers(0,[]):-!.
+listNumbers(N,[N|L]):- N1 is N-1, listNumbers(N1,L).
+list200(L):- listNumbers(500000,LNums), subset(200,LNums,L).
+
+
+friendsforever:- list200(L), allfriends(L,L), write(L), nl.
+allfriends([],_).
+allfriends([X|Rest],L):- friends(X,FrX), isSubset(L,FrX), allfriends(Rest,L).
+isSubset([],_).
+isSubset([X|Rest],L):- member(X,L), isSubset(Rest,L).
+
+friendsforever:- friends(X,FrX), ff([X],[X|FrX],L), write(L), nl.
+%the 1st argument L of ff is input, the list built so far.
+%The 2nd one I is the intersection of all friends of the members of L
+%The 3rd one L1 is the output list.
+ff(L,_,L):- length(L,200),!.
+ff(L,I,L1):- member(X,I), \+member(X,L), friends(X,FrX), isSubset(L,Frx),
+intersection(I,[X|Frx],I1), length(I1,K), K>=200, ff([X|L],I1,L1).
+intersection([],_,[]).
+intersection([X|L],L1,[X|I]):- member(X,L1), !, intersection(L,L1,I).
+intersection([_|L],L1, I ):- intersection(L,L1,I).
+
+
+--------------------------------------------------------------------------------------
